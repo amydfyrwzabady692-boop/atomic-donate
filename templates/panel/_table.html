@@ -1,0 +1,30 @@
+{% load money %}
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>زمان</th><th>نام</th><th>مبلغ</th><th>شکلک</th><th>وضعیت</th><th>پیام</th><th></th></tr></thead>
+    <tbody>
+      {% for d in donations %}
+        <tr>
+          <td>{{ d.created_at|date:"m/d H:i" }}</td>
+          <td>{{ d.name }}</td>
+          <td>{{ d.amount_toman|toman }}</td>
+          <td>{{ d.emoji }}</td>
+          <td><span class="tag {{ d.status }}">{{ d.get_status_display }}</span></td>
+          <td>{{ d.message }}</td>
+          <td>
+            {% if not dock %}
+            {% if d.status == "paid" or d.status == "test" %}
+              <form method="post" action="{% url 'panel_replay' d.pk %}">{% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.resolver_match.url_name }}">
+                <button class="tiny" type="submit">پخش دوباره</button>
+              </form>
+            {% endif %}
+            {% endif %}
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="7">حمایتی نیست.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

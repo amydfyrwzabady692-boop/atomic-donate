@@ -1,0 +1,48 @@
+{% extends "panel/base.html" %}
+{% load money %}
+{% block kicker %}پنل کاربری / ابزارها / شرط مبلغ{% endblock %}
+{% block heading %}شرط‌های آلارم{% endblock %}
+{% block content %}
+<p class="muted">مثل ریمیت: برای بازه مبلغ، گیف و صدای جدا بگذار. مثلاً بالای ۱۰۰ هزار یک گیف خاص.</p>
+<form class="card stack" method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  <div class="row">
+    <label>از مبلغ (تومان) <input type="number" name="min_toman" value="0" required></label>
+    <label>تا مبلغ (۰ = بی‌نهایت) <input type="number" name="max_toman" value="0"></label>
+  </div>
+  <label>نام شرط <input name="label" placeholder="مثلاً دونیت طلایی"></label>
+  <div class="row">
+    <label>مدت ثانیه <input type="number" name="duration" value="{{ site.alert_seconds }}"></label>
+    <label>ظاهر
+      <select name="style">
+        <option value="">همان پیش‌فرض</option>
+        {% for value, label in alert_styles %}<option value="{{ value }}">{{ label }}</option>{% endfor %}
+      </select>
+    </label>
+  </div>
+  <label>گیف این بازه <input type="file" name="gif" accept="image/gif,image/webp,image/png"></label>
+  <label>صدای این بازه <input type="file" name="sound" accept="audio/*"></label>
+  <button class="btn" type="submit">افزودن شرط</button>
+</form>
+<section class="card">
+  <table>
+    <thead><tr><th>بازه</th><th>نام</th><th>مدت</th><th></th></tr></thead>
+    <tbody>
+      {% for c in conditions %}
+        <tr>
+          <td>{{ c.min_toman|toman }} — {% if c.max_toman %}{{ c.max_toman|toman }}{% else %}∞{% endif %}</td>
+          <td>{{ c.label }}</td>
+          <td>{{ c.duration }}ث</td>
+          <td>
+            <form method="post" action="{% url 'panel_condition_delete' c.pk %}">{% csrf_token %}
+              <button class="tiny" type="submit">حذف</button>
+            </form>
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="4">شرطی نیست؛ آلارم پیش‌فرض برای همه مبالغ استفاده می‌شود.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

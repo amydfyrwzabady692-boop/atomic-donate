@@ -1,0 +1,78 @@
+{% extends "panel/base.html" %}
+{% block kicker %}پنل کاربری / ابزارها{% endblock %}
+{% block heading %}ابزارها{% endblock %}
+{% block content %}
+<p class="muted note">هر ابزار یک Browser Source جدا در OBS است. برو داخل ابزار، لینک را کپی کن و ظاهر شکل استریم را تنظیم کن.</p>
+<section class="tools">
+  <article class="tool-card">
+    <h2>هشدار رویداد جدید</h2>
+    <p>گیف، صدا، خواندن پیام و ظاهر آلارم روی استریم.</p>
+    <a class="go" href="{% url 'panel_alert' %}">رفتن به ابزار ←</a>
+  </article>
+  <article class="tool-card">
+    <h2>هدف حمایت مالی</h2>
+    <p>نوار پیشرفت هدف با رنگ، قالب متن و پیش‌نمایش زنده.</p>
+    <a class="go" href="{% url 'panel_goal' %}">رفتن به ابزار ←</a>
+  </article>
+  <article class="tool-card">
+    <h2>لیست آخرین حمایت‌ها</h2>
+    <p>کارت‌های عمودی یا نوار افقی از دونیت‌های تازه.</p>
+    <a class="go" href="{% url 'panel_widget' 'list' %}">رفتن به ابزار ←</a>
+  </article>
+  <article class="tool-card">
+    <h2>لیست بزرگ‌ترین حمایت‌ها</h2>
+    <p>مرتب‌شده بر اساس مبلغ برای گوشه استریم.</p>
+    <a class="go" href="{% url 'panel_widget' 'list_biggest' %}">رفتن به ابزار ←</a>
+  </article>
+  <article class="tool-card">
+    <h2>بزرگ‌ترین حمایت‌کننده‌ها</h2>
+    <p>جمع مبلغ هر نفر، نه فقط یک تراکنش.</p>
+    <a class="go" href="{% url 'panel_widget' 'list_donors' %}">رفتن به ابزار ←</a>
+  </article>
+  <article class="tool-card">
+    <h2>برچسب آخرین حمایت</h2>
+    <p>عنوان آخرین حامی روی تصویر استریم.</p>
+    <a class="go" href="{% url 'panel_widget' 'latest' %}">رفتن به ابزار ←</a>
+  </article>
+  <article class="tool-card">
+    <h2>برچسب بزرگ‌ترین حمایت</h2>
+    <p>صاحب عنوان بزرگ‌ترین دونیت.</p>
+    <a class="go" href="{% url 'panel_widget' 'biggest' %}">رفتن به ابزار ←</a>
+  </article>
+  <article class="tool-card">
+    <h2>صف نوبتی حمایت‌ها</h2>
+    <p>هر چند ثانیه یکی از حمایت‌ها را نشان می‌دهد.</p>
+    <a class="go" href="{% url 'panel_widget' 'queue' %}">رفتن به ابزار ←</a>
+  </article>
+  <article class="tool-card">
+    <h2>تایمر و کرونومتر</h2>
+    <p>برای استریم‌های ماراتن و چالش زمانی.</p>
+    <a class="go" href="{% url 'panel_timer' %}">رفتن به ابزار ←</a>
+  </article>
+  <article class="tool-card">
+    <h2>جمع حمایت‌ها</h2>
+    <p>جمع امروز، هفته، ماه یا کل.</p>
+    <a class="go" href="{% url 'panel_widget' 'total_all' %}">رفتن به ابزار ←</a>
+  </article>
+  <article class="tool-card">
+    <h2>شرط مبلغ</h2>
+    <p>گیف و صدای جدا برای بازه‌های مختلف دونیت.</p>
+    <a class="go" href="{% url 'panel_conditions' %}">رفتن به ابزار ←</a>
+  </article>
+  <article class="tool-card">
+    <h2>سانسور پیام</h2>
+    <p>کلمات نامناسب را ستاره کن یا روی استریم نشان نده.</p>
+    <a class="go" href="{% url 'panel_censor' %}">رفتن به ابزار ←</a>
+  </article>
+  <article class="tool-card">
+    <h2>گزارش ماه</h2>
+    <p>جمع‌ها و بزرگ‌ترین حمایت‌کننده.</p>
+    <a class="go" href="{% url 'panel_recap' %}">رفتن به ابزار ←</a>
+  </article>
+  <article class="tool-card">
+    <h2>کنترل پنل استریم</h2>
+    <p>داک OBS برای اسکیپ آلارم، حجم و پخش دوباره.</p>
+    <a class="go" href="{% url 'panel_stream' %}">رفتن به ابزار ←</a>
+  </article>
+</section>
+{% endblock %}

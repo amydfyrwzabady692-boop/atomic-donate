@@ -1,0 +1,89 @@
+{% load money %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>درگاه حمایت مالی از {{ site.display_name }}</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;800&display=swap">
+  <link rel="stylesheet" href="/static/css/donate.css">
+  <style>:root { --accent: {{ site.accent_color }}; }</style>
+</head>
+<body class="theme-{{ site.gateway_theme }} reymit">
+  <main class="reymit-shell">
+    {% if site.show_goal_on_gateway %}
+    <aside class="goal-panel">
+      <p class="goal-kicker">هدف: {{ site.goal_title }}</p>
+      <div class="ring big" style="--p: {{ site.goal_percent }}"><b>{{ site.goal_percent }}٪<small>تکمیل شده</small></b></div>
+      <p class="goal-now">{{ site.goal_current|toman }}</p>
+      <p class="goal-from">از {{ site.goal_target_toman|toman }} تومان حمایت شده</p>
+    </aside>
+    {% endif %}
+
+    <section class="white-card">
+      <div class="who">
+        {% if site.avatar %}<img src="{{ site.avatar.url }}" alt="">{% else %}<span class="ava">{{ site.display_name|make_list|first }}</span>{% endif %}
+        <div>
+          <h1>{{ site.display_name }}</h1>
+          <p>{{ site.page_title }}</p>
+        </div>
+      </div>
+      {% if site.bio %}<p class="bio">{{ site.bio }}</p>{% endif %}
+      <div class="socials">
+        {% if site.instagram %}<a href="{{ site.instagram }}" target="_blank" rel="noreferrer">اینستاگرام</a>{% endif %}
+        {% if site.telegram %}<a href="{{ site.telegram }}" target="_blank" rel="noreferrer">تلگرام</a>{% endif %}
+        {% if site.youtube %}<a href="{{ site.youtube }}" target="_blank" rel="noreferrer">یوتیوب</a>{% endif %}
+      </div>
+      {% if errors %}<ul class="errors">{% for error in errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+      <form method="post" action="{% url 'pay' %}" class="form">
+        {% csrf_token %}
+        <label>مبلغ به تومان ({{ site.min_amount_toman|toman }} - {{ site.max_amount_toman|toman }})
+          <input type="number" name="amount" min="{{ site.min_amount_toman }}" max="{{ site.max_amount_toman }}" required value="{{ form.amount|default:site.min_amount_toman }}" placeholder="مبلغ به تومان">
+        </label>
+        <div class="chips">
+          {% for amount in presets %}
+            {% if amount >= site.min_amount_toman and amount <= site.max_amount_toman %}
+              <button type="button" class="chip" data-amount="{{ amount }}">{{ amount|toman }}</button>
+            {% endif %}
+          {% endfor %}
+        </div>
+        <label>نام شما <input name="name" maxlength="64" required value="{{ form.name|default:'' }}" placeholder="نام شما"></label>
+        <div class="split">
+          <label>ایمیل <input type="email" name="email" value="{{ form.email|default:'' }}" placeholder="ایمیل"></label>
+          <label>شماره همراه <input type="tel" name="mobile" value="{{ form.mobile|default:'' }}" placeholder="شماره همراه"></label>
+        </div>
+        <label>توضیحات <textarea name="message" maxlength="280" rows="3" placeholder="توضیحات">{{ form.message|default:'' }}</textarea></label>
+        <p class="label">ارسال شکلک همراه با حمایت</p>
+        <div class="emojis">
+          {% for e in emojis %}
+            <label class="emo"><input type="radio" name="emoji" value="{{ e }}" {% if forloop.first %}checked{% endif %}><span>{{ e }}</span></label>
+          {% endfor %}
+        </div>
+        <label class="switch"><input type="checkbox" name="show_name" checked> نام من را در پخش زنده نمایش بده</label>
+        <label class="switch"><input type="checkbox" name="show_message" checked> توضیحات را در پخش زنده نمایش بده</label>
+        <label class="switch"><input type="checkbox" name="show_in_list" checked> نام و مشخصات مرا در لیست حامیان نمایش بده</label>
+        {% if site.require_terms %}
+        <label class="switch terms"><input type="checkbox" name="terms" required> قوانین مربوط به حمایت‌کنندگان را می‌پذیرم و تأیید می‌کنم این حمایت اختیاری است و در قبال آن محصولی دریافت نمی‌کنم.</label>
+        {% endif %}
+        <div class="actions">
+          {% if site.show_recent_on_gateway %}<button type="button" class="ghost" id="toggle-donors">لیست حامیان</button>{% endif %}
+          <button class="cta" type="submit">پرداخت</button>
+        </div>
+      </form>
+    </section>
+  </main>
+  {% if site.show_recent_on_gateway %}
+  <aside class="donor-drawer" id="donors-box" hidden>
+    <h3>لیست حامیان</h3>
+    <ul>
+      {% for d in recent %}
+        <li><span>{{ d.emoji }} {{ d.name }}</span><b>{{ d.amount_toman|toman }} ت</b></li>
+      {% empty %}
+        <li>هنوز حمایتی نیست.</li>
+      {% endfor %}
+    </ul>
+  </aside>
+  {% endif %}
+  <script src="/static/js/donate.js"></script>
+</body>
+</html>

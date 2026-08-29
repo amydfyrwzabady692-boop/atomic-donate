@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ورود پنل</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;800&display=swap">
+  <link rel="stylesheet" href="/static/css/panel.css">
+</head>
+<body class="login-body">
+  <form method="post" class="login-card">
+    {% csrf_token %}
+    <span class="logo">A</span>
+    <h1>ورود به پنل</h1>
+    {% if error %}<p class="flash">{{ error }}</p>{% endif %}
+    <label>نام کاربری <input name="username" required autofocus></label>
+    <label>رمز عبور <input type="password" name="password" required></label>
+    <button class="btn" type="submit">ورود</button>
+  </form>
+</body>
+</html>

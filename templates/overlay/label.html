@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <title>Label</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@700;800&display=swap">
+  <link rel="stylesheet" href="/static/css/overlay.css">
+</head>
+<body class="overlay-body" data-kind="label" data-mode="{{ mode }}" data-key="{{ overlay_key }}">
+  <section class="top-box" style="--widget-bg:{{ site.list_bg }};--widget-text:{{ site.list_text }};--fill:{{ site.goal_fill }}">
+    <p class="kicker" id="label-title">حمایت صاحب عنوان</p>
+    <p id="top-emoji" class="alert-emoji">👑</p>
+    <p id="top-name">—</p>
+    <p id="top-amount" class="alert-amount"></p>
+  </section>
+  <script src="/static/js/overlay.js"></script>
+</body>
+</html>

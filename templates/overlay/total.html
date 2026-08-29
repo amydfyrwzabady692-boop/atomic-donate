@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <title>Total</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@700;800&display=swap">
+  <link rel="stylesheet" href="/static/css/overlay.css">
+</head>
+<body class="overlay-body" data-kind="total" data-period="{{ period }}" data-key="{{ overlay_key }}">
+  <section class="top-box" style="--widget-bg:{{ site.list_bg }};--widget-text:{{ site.list_text }};--fill:{{ site.goal_fill }}">
+    <p class="kicker" id="total-title">جمع حمایت‌ها</p>
+    <p id="total-amount" class="alert-amount">0</p>
+    <p class="goal-numbers">تومان</p>
+  </section>
+  <script src="/static/js/overlay.js"></script>
+</body>
+</html>

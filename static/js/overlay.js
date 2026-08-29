@@ -1,0 +1,408 @@
+const body = document.body;
+const kind = body.dataset.kind;
+const key = body.dataset.key || "";
+let cfg = {
+  alert_volume: Number(body.dataset.volume || 80) / 100,
+  tts_volume: Number(body.dataset.ttsVolume || 85) / 100,
+  duration: 8,
+  tts: true,
+  sound_enabled: true,
+  gif: "",
+  sound: "",
+  alert_style: body.dataset.style || "glass",
+  list_style: body.dataset.style || "cards",
+  goal_style: body.dataset.style || "bar",
+  list_size: 8,
+};
+let queue = [];
+let playing = false;
+let playGen = 0;
+let hideTimer = 0;
+let lastId = null;
+const audio = new Audio();
+
+function formatToman(value) {
+  return Number(value || 0).toLocaleString("en-US");
+}
+
+function applyConfig(data) {
+  cfg = { ...cfg, ...data };
+  const alert = document.getElementById("alert");
+  const list = document.getElementById("list");
+  const goal = document.getElementById("goal");
+  if (alert && cfg.alert_style) alert.className = `alert style-${cfg.alert_style}`;
+  if (list && cfg.list_style) list.className = `list-box style-${cfg.list_style}`;
+  if (goal && cfg.goal_style) goal.className = `goal-box style-${cfg.goal_style}`;
+  audio.volume = Math.max(0, Math.min(1, cfg.alert_volume || 0));
+  applyWidgetTheme();
+  if (data.goal && kind === "goal") renderGoal(data.goal);
+}
+
+function applyWidgetTheme() {
+  const g = cfg.goal || {};
+  const goal = document.getElementById("goal");
+  if (goal) {
+    goal.style.setProperty("--fill", g.fill || "#7c4dff");
+    goal.style.setProperty("--track", g.track || "#e9e1ff");
+    goal.style.setProperty("--widget-text", g.text || "#3b0764");
+    goal.style.setProperty("--widget-bg", g.bg || "#ffffff");
+    goal.style.setProperty("--widget-radius", `${g.radius ?? 16}px`);
+    goal.style.setProperty("--widget-font", `${g.font_size ?? 18}px`);
+    goal.style.setProperty("--bar-h", `${g.bar_height ?? 22}px`);
+    goal.style.display = g.active === false ? "none" : "";
+  }
+  const list = document.getElementById("list");
+  if (list) {
+    list.style.setProperty("--widget-bg", cfg.list_bg || "#ffffff");
+    list.style.setProperty("--widget-text", cfg.list_text || "#2e1065");
+  }
+  const tops = document.querySelectorAll(".top-box, .timer-box");
+  tops.forEach((el) => {
+    el.style.setProperty("--widget-bg", cfg.list_bg || g.bg || "#ffffff");
+    el.style.setProperty("--widget-text", cfg.list_text || g.text || "#2e1065");
+    el.style.setProperty("--fill", g.fill || "#7c4dff");
+  });
+  const alert = document.getElementById("alert");
+  if (alert) {
+    alert.style.setProperty("--alert-text", cfg.alert_text || "#2e1065");
+    alert.style.setProperty("--name-size", `${cfg.alert_name_size || 22}px`);
+  }
+}
+
+function connect() {
+  const proto = location.protocol === "https:" ? "wss:" : "ws:";
+  const socket = new WebSocket(`${proto}//${location.host}/ws/overlay/?key=${encodeURIComponent(key)}`);
+  socket.addEventListener("message", (event) => onPayload(JSON.parse(event.data)));
+  socket.addEventListener("close", () => setTimeout(connect, 1500));
+}
+
+async function poll() {
+  try {
+    const res = await fetch(`/overlay/snapshot/?key=${encodeURIComponent(key)}`);
+    if (res.ok) onPayload(await res.json());
+  } catch (err) {
+    /* ignore */
+  }
+}
+
+const mode = body.dataset.mode || "last";
+const period = body.dataset.period || "all";
+let rotate = [];
+let rotateIndex = 0;
+
+function onPayload(data) {
+  if (data.type === "skip") {
+    skipAlert();
+    return;
+  }
+  if (data.type === "timer" && kind === "timer") {
+    applyTimerCommand(data);
+    return;
+  }
+  if (data.type === "settings" || data.type === "snapshot") applyConfig(data);
+  if (data.type === "snapshot") {
+    if (kind === "list") renderList(listItems(data));
+    if (kind === "goal") renderGoal(data.goal);
+    if (kind === "top" || kind === "label") renderLabel(data);
+    if (kind === "total") renderTotal(data);
+    if (kind === "queue") startQueue(data.donors || []);
+    if (data.latest && lastId && data.latest.id !== lastId && kind === "alert" && !data.latest.skip_stream) {
+      enqueue({ ...data, ...data.latest });
+    }
+    if (data.latest) lastId = data.latest.id;
+  }
+  if (data.type === "donation") {
+    lastId = data.id;
+    if (data.skip_stream) return;
+    if (kind === "alert") enqueue(data);
+    if (kind === "list" && data.show_in_list !== false) prependDonor(data);
+    if (kind === "goal") renderGoal(data.goal);
+    if (kind === "top" || kind === "label") renderLabel(data);
+    if (kind === "total") renderTotal(data);
+    if (kind === "queue" && data.show_in_list !== false) {
+      rotate.unshift(data);
+      showQueueItem(data);
+    }
+  }
+}
+
+function skipAlert() {
+  playGen += 1;
+  queue = [];
+  playing = false;
+  clearTimeout(hideTimer);
+  const box = document.getElementById("alert");
+  if (box) box.classList.remove("show");
+  try {
+    speechSynthesis.cancel();
+  } catch (err) {
+    /* ignore */
+  }
+  audio.pause();
+  audio.removeAttribute("src");
+}
+
+function listItems(data) {
+  if (mode === "biggest") {
+    return [...(data.donors || [])].sort((a, b) => b.amount - a.amount);
+  }
+  if (mode === "donors") {
+    const map = {};
+    (data.donors || []).forEach((d) => {
+      map[d.name] = (map[d.name] || 0) + d.amount;
+    });
+    return Object.entries(map)
+      .map(([name, amount]) => ({ name, amount, emoji: "👑" }))
+      .sort((a, b) => b.amount - a.amount);
+  }
+  return data.donors || [];
+}
+
+function renderLabel(data) {
+  const titles = { latest: "آخرین حمایت", biggest: "بزرگ‌ترین حمایت", donor: "بزرگ‌ترین حمایت‌کننده" };
+  const title = document.getElementById("label-title");
+  if (title) title.textContent = titles[mode] || titles.biggest;
+  if (mode === "latest") renderTop(data.latest || data);
+  else if (mode === "donor") renderTop(data.biggest_donor || data);
+  else renderTop(data.biggest || data.top || data);
+}
+
+function renderTotal(data) {
+  const labels = { day: "امروز", week: "هفته", month: "ماه", all: "کل" };
+  const title = document.getElementById("total-title");
+  const amount = document.getElementById("total-amount");
+  if (title) title.textContent = `جمع حمایت‌ها (${labels[period] || "کل"})`;
+  if (amount) amount.textContent = formatToman((data.totals || {})[period] || 0);
+}
+
+let queueTimer;
+function startQueue(donors) {
+  rotate = donors.slice();
+  if (!rotate.length) return;
+  showQueueItem(rotate[0]);
+  if (queueTimer) return;
+  queueTimer = setInterval(() => {
+    if (!rotate.length) return;
+    rotateIndex = (rotateIndex + 1) % rotate.length;
+    showQueueItem(rotate[rotateIndex]);
+  }, 5000);
+}
+
+function showQueueItem(item) {
+  const set = (id, value) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value || "";
+  };
+  set("q-emoji", item.emoji || "💜");
+  set("q-name", item.name);
+  set("q-amount", `${formatToman(item.amount)} تومان`);
+  set("q-msg", item.message);
+}
+
+function renderList(donors) {
+  const root = document.getElementById("donors");
+  if (!root) return;
+  const titles = { last: "آخرین حمایت‌ها", biggest: "بزرگ‌ترین حمایت‌ها", donors: "بزرگ‌ترین حمایت‌کننده‌ها" };
+  const heading = document.querySelector("#list h2");
+  if (heading) heading.textContent = titles[mode] || titles.last;
+  root.innerHTML = donors.map(itemHtml).join("");
+}
+
+function prependDonor(data) {
+  if (data.show_in_list === false) return;
+  const root = document.getElementById("donors");
+  if (!root) return;
+  root.insertAdjacentHTML("afterbegin", itemHtml(data));
+  while (root.children.length > (cfg.list_size || 8)) root.lastElementChild.remove();
+}
+
+function itemHtml(d) {
+  return `<li><span>${escapeHtml(d.emoji || "")} ${escapeHtml(d.name)}</span><span class="amt">${formatToman(d.amount)} ت</span></li>`;
+}
+
+function renderGoal(goal) {
+  if (!goal) return;
+  const title = document.getElementById("goal-title");
+  const fill = document.getElementById("goal-fill");
+  const meta = document.getElementById("goal-meta");
+  const ring = document.getElementById("goal-ring");
+  const pct = document.getElementById("goal-pct");
+  const currentEl = document.getElementById("goal-current");
+  const targetEl = document.getElementById("goal-target");
+  const titleText = String(goal.title_tpl || "هدف: <NAME>").replace("<NAME>", goal.title || "هدف");
+  const details = String(goal.details_tpl || "<CURRENT> از <GOAL> تومان")
+    .replace("<CURRENT>", formatToman(goal.current))
+    .replace("<GOAL>", formatToman(goal.target));
+  if (title) {
+    title.textContent = titleText;
+    title.style.display = goal.show_title === false ? "none" : "";
+  }
+  if (fill) fill.style.width = `${goal.percent || 0}%`;
+  if (ring) ring.style.setProperty("--p", goal.percent || 0);
+  if (pct) pct.textContent = `${goal.percent || 0}٪`;
+  if (meta) {
+    meta.textContent = details;
+    meta.style.display = goal.show_details === false ? "none" : "";
+  }
+  if (currentEl) currentEl.textContent = formatToman(goal.current);
+  if (targetEl) targetEl.textContent = formatToman(goal.target);
+  const box = document.getElementById("goal");
+  if (box) box.style.display = goal.active === false ? "none" : "";
+}
+
+function renderTop(top) {
+  if (!top) return;
+  const name = document.getElementById("top-name");
+  const amount = document.getElementById("top-amount");
+  const emoji = document.getElementById("top-emoji");
+  if (name) name.textContent = top.name;
+  if (amount) amount.textContent = `${formatToman(top.amount)} تومان`;
+  if (emoji) emoji.textContent = top.emoji || "👑";
+}
+
+function enqueue(data) {
+  queue.push(data);
+  if (!playing) playNext();
+}
+
+function playNext() {
+  const data = queue.shift();
+  if (!data) {
+    playing = false;
+    return;
+  }
+  playing = true;
+  const gen = playGen;
+  const box = document.getElementById("alert");
+  const gif = document.getElementById("gif");
+  document.getElementById("who").textContent = data.name;
+  document.getElementById("amount").textContent = `${formatToman(data.amount)} تومان`;
+  document.getElementById("msg").textContent = data.message || "";
+  document.getElementById("emoji").textContent = data.emoji || "💜";
+  const gifUrl = data.gif || cfg.gif;
+  if (gifUrl) {
+    gif.src = `${gifUrl}?t=${Date.now()}`;
+    gif.style.display = "block";
+  } else {
+    gif.removeAttribute("src");
+    gif.style.display = "none";
+  }
+  if (data.alert_style) box.className = `alert style-${data.alert_style}`;
+  box.classList.add("show");
+  playSound(data);
+  if (data.tts ?? cfg.tts) speak(`${data.name} ${formatToman(data.amount)} تومان. ${data.message || ""}`);
+  const ms = Math.max(3, Number(data.duration || cfg.duration || 8)) * 1000;
+  hideTimer = setTimeout(() => {
+    if (gen !== playGen) return;
+    box.classList.remove("show");
+    speechSynthesis.cancel();
+    setTimeout(() => {
+      if (gen !== playGen) return;
+      playNext();
+    }, 350);
+  }, ms);
+}
+
+function playSound(data) {
+  if ((data.sound_enabled ?? cfg.sound_enabled) === false) return;
+  audio.volume = Math.max(0, Math.min(1, data.alert_volume ?? cfg.alert_volume ?? 0.8));
+  const src = data.sound || cfg.sound;
+  if (src) {
+    audio.src = `${src}?t=${Date.now()}`;
+    audio.play().catch(() => playChime(audio.volume));
+    return;
+  }
+  playChime(audio.volume);
+}
+
+function playChime(volume) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = "triangle";
+    o.frequency.setValueAtTime(660, ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(990, ctx.currentTime + 0.12);
+    g.gain.setValueAtTime(volume * 0.2, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.45);
+    o.connect(g);
+    g.connect(ctx.destination);
+    o.start();
+    o.stop(ctx.currentTime + 0.45);
+  } catch (err) {
+    /* ignore */
+  }
+}
+
+function speak(text) {
+  try {
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = "fa-IR";
+    utter.volume = Math.max(0, Math.min(1, cfg.tts_volume || 0.85));
+    utter.rate = Number(cfg.tts_rate || 1);
+    utter.pitch = Number(cfg.tts_pitch || 1);
+    speechSynthesis.cancel();
+    speechSynthesis.speak(utter);
+  } catch (err) {
+    /* ignore */
+  }
+}
+
+function escapeHtml(value) {
+  return String(value || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
+
+let timerMode = body.dataset.mode || "countdown";
+let timerRemain = Number(body.dataset.seconds || 3600);
+let timerElapsed = 0;
+let timerRunning = timerMode === "stopwatch";
+let lastTick = Date.now();
+
+function pad(n) {
+  return String(Math.floor(n)).padStart(2, "0");
+}
+
+function renderTimer() {
+  const el = document.getElementById("timer-digits");
+  if (!el) return;
+  const total = timerMode === "stopwatch" ? timerElapsed : Math.max(0, timerRemain);
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = Math.floor(total % 60);
+  el.textContent = h > 0 ? `${pad(h)}:${pad(m)}:${pad(s)}` : `${pad(m)}:${pad(s)}`;
+}
+
+function applyTimerCommand(data) {
+  if (data.action === "reset") {
+    timerElapsed = 0;
+    timerRemain = Number(data.seconds || body.dataset.seconds || 3600);
+    timerRunning = false;
+  } else if (data.action === "start") {
+    if (data.seconds) timerRemain = Number(data.seconds);
+    timerRunning = true;
+    lastTick = Date.now();
+  } else if (data.action === "pause") {
+    timerRunning = false;
+  }
+  renderTimer();
+}
+
+if (kind === "timer") {
+  renderTimer();
+  setInterval(() => {
+    if (!timerRunning) return;
+    const now = Date.now();
+    const dt = (now - lastTick) / 1000;
+    lastTick = now;
+    if (timerMode === "stopwatch") timerElapsed += dt;
+    else timerRemain = Math.max(0, timerRemain - dt);
+    renderTimer();
+  }, 250);
+}
+
+connect();
+setInterval(poll, 4000);
+if (kind !== "timer") poll();

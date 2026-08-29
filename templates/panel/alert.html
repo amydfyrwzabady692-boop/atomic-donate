@@ -1,0 +1,74 @@
+{% extends "panel/base.html" %}
+{% block kicker %}پنل کاربری / ابزارها / هشدار رویداد جدید{% endblock %}
+{% block heading %}هشدار رویداد جدید{% endblock %}
+{% block content %}
+<div class="actions" style="margin-bottom:16px">
+  <a class="btn" href="{{ overlay_urls.alert }}" target="_blank">نمایش ابزار</a>
+  <button type="button" class="btn-soft copy" data-copy="{{ overlay_urls.alert }}">کپی لینک</button>
+</div>
+
+<div class="link-box">
+  <p class="muted">لینک ابزار (Browser Source در OBS، پیشنهاد ۸۰۰×۴۵۰)</p>
+  <div class="copy-row">
+    <input readonly value="{{ overlay_urls.alert }}">
+    <button type="button" class="tiny copy">کپی</button>
+  </div>
+</div>
+
+<section class="grid-2" style="margin-top:16px">
+  <form class="card stack" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <label>ظاهر آلارم
+      <select name="alert_style">{% for value, label in alert_styles %}<option value="{{ value }}" {% if site.alert_style == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+    </label>
+    <label>رنگ نوشته <input type="color" name="alert_text" value="{{ site.alert_text }}"></label>
+    <label>اندازه نام <input type="number" name="alert_name_size" min="12" max="48" value="{{ site.alert_name_size }}"></label>
+    <label>گیف / وب‌ام / تصویر آلارم
+      <input type="file" name="alert_gif" accept="image/gif,image/webp,image/png,image/jpeg,video/webm">
+    </label>
+    {% if site.alert_gif %}
+      <img class="media-preview" src="{{ site.alert_gif.url }}" alt="gif">
+      <label class="check"><input type="checkbox" name="clear_gif"> حذف گیف</label>
+    {% endif %}
+    <label>فایل صدا (mp3 / wav / ogg)
+      <input type="file" name="alert_sound" accept="audio/*">
+    </label>
+    {% if site.alert_sound %}
+      <audio controls src="{{ site.alert_sound.url }}"></audio>
+      <label class="check"><input type="checkbox" name="clear_sound"> حذف صدا</label>
+    {% endif %}
+    <label>مدت نمایش: <b id="sec-val">{{ site.alert_seconds }}</b> ثانیه
+      <input type="range" name="alert_seconds" min="2" max="30" value="{{ site.alert_seconds }}" data-output="sec-val">
+    </label>
+    <label>صدای دونیت: <b id="vol-val">{{ site.alert_volume }}</b>٪
+      <input type="range" name="alert_volume" min="0" max="100" value="{{ site.alert_volume }}" data-output="vol-val" data-live-volume="alert">
+    </label>
+    <label>صدای خواندن پیام: <b id="tts-val">{{ site.tts_volume }}</b>٪
+      <input type="range" name="tts_volume" min="0" max="100" value="{{ site.tts_volume }}" data-output="tts-val" data-live-volume="tts">
+    </label>
+    <div class="row">
+      <label>سرعت خواندن <input type="number" name="tts_rate" step="0.1" min="0.5" max="2" value="{{ site.tts_rate }}"></label>
+      <label>زیر و بمی <input type="number" name="tts_pitch" step="0.1" min="0" max="2" value="{{ site.tts_pitch }}"></label>
+    </div>
+    <label class="check"><input type="checkbox" name="sound_enabled" {% if site.sound_enabled %}checked{% endif %}> پخش صدای دونیت</label>
+    <label class="check"><input type="checkbox" name="tts_enabled" {% if site.tts_enabled %}checked{% endif %}> خواندن نام و پیام در OBS</label>
+    <button class="btn" type="submit">ذخیره آلارم</button>
+  </form>
+
+  <div class="stack">
+    <div class="card stack">
+      <h2>نمونه هشدار</h2>
+      <form method="post" action="{% url 'panel_test' %}" class="stack">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="panel_alert">
+        <label>نام <input name="name" value="حامی تست"></label>
+        <label>مبلغ نمونه حمایت <input type="number" name="amount" value="10000"></label>
+        <label>پیام <input name="message" value="ادامه بده"></label>
+        <label>شکلک <input name="emoji" value="💎"></label>
+        <button class="btn" type="submit">نمایش هشدار</button>
+      </form>
+    </div>
+    <iframe class="preview" src="{{ overlay_urls.alert }}" title="alert preview"></iframe>
+  </div>
+</section>
+{% endblock %}

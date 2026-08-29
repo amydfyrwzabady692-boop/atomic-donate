@@ -1,0 +1,21 @@
+{% extends "panel/base.html" %}
+{% block kicker %}پنل کاربری / حمایت‌ها{% endblock %}
+{% block heading %}حمایت‌ها{% endblock %}
+{% block content %}
+<section class="card">
+  <form class="copy-row" method="get">
+    <input name="q" value="{{ q }}" placeholder="جستجو نام، پیام یا کد پیگیری">
+    <button class="btn" type="submit">جستجو و فیلتر</button>
+  </form>
+  <input type="hidden" data-live-volume="tts" value="{{ site.tts_volume }}">
+  {% include "panel/_table.html" %}
+  <div class="footer-bar">
+    <div class="volume-line">
+      <span>صدای هشدار</span>
+      <input type="range" min="0" max="100" value="{{ site.alert_volume }}" data-output="don-vol" data-live-volume="alert">
+      <b id="don-vol">{{ site.alert_volume }}</b>٪
+    </div>
+    <p class="muted">این صفحه با پخش دوباره آلارم، روی استریم اعمال می‌شود.</p>
+  </div>
+</section>
+{% endblock %}

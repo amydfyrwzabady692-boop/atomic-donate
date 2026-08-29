@@ -1,0 +1,73 @@
+{% extends "panel/base.html" %}
+{% load money %}
+{% block kicker %}پنل کاربری / ابزارها / هدف حمایت مالی{% endblock %}
+{% block heading %}هدف حمایت مالی{% endblock %}
+{% block content %}
+<div class="actions" style="margin-bottom:16px">
+  <a class="btn" href="{{ overlay_urls.goal }}" target="_blank">نمایش ابزار</a>
+  <button type="button" class="btn-soft copy" data-copy="{{ overlay_urls.goal }}">کپی لینک</button>
+</div>
+<div class="copy-row">
+  <input readonly value="{{ overlay_urls.goal }}">
+  <button type="button" class="tiny copy">کپی</button>
+</div>
+
+<nav class="tabs">
+  <a class="{% if tab != 'look' %}active{% endif %}" href="{% url 'panel_goal' %}">تنظیمات اصلی هدف</a>
+  <a class="{% if tab == 'look' %}active{% endif %}" href="{% url 'panel_goal' %}?tab=look">تنظیمات ظاهری</a>
+</nav>
+
+{% if tab != "look" %}
+<form class="card stack" method="post">
+  {% csrf_token %}
+  <label class="check"><input type="checkbox" name="goal_active" {% if site.goal_active %}checked{% endif %}> فعال بودن هدف</label>
+  <label class="check"><input type="checkbox" name="show_goal_on_gateway" {% if site.show_goal_on_gateway %}checked{% endif %}> نمایش هدف روی درگاه حمایت</label>
+  <label class="check"><input type="checkbox" name="goal_show_title" {% if site.goal_show_title %}checked{% endif %}> نمایش عنوان هدف روی استریم</label>
+  <label class="check"><input type="checkbox" name="goal_show_details" {% if site.goal_show_details %}checked{% endif %}> نمایش جزئیات مبلغ روی استریم</label>
+  <label>عنوان هدف <input name="goal_title" value="{{ site.goal_title }}"></label>
+  <label>مبلغ هدف (تومان) <input type="number" name="goal_target_toman" value="{{ site.goal_target_toman }}"></label>
+  <label>شروع اولیه نوار (تومان) <input type="number" name="goal_start_toman" value="{{ site.goal_start_toman }}"></label>
+  <p class="muted">الان {{ site.goal_current|toman }} تومان از هدف جمع شده ({{ site.goal_percent }}٪).</p>
+  <div class="actions">
+    <button class="btn" type="submit">ذخیره تغییرات</button>
+    <button class="btn-soft" type="submit" name="reset_goal" value="1">ریست کردن هدف</button>
+  </div>
+</form>
+{% else %}
+<form class="card stack" method="post">
+  {% csrf_token %}
+  <input type="hidden" name="goal_title" value="{{ site.goal_title }}">
+  <input type="hidden" name="goal_target_toman" value="{{ site.goal_target_toman }}">
+  <input type="hidden" name="goal_start_toman" value="{{ site.goal_start_toman }}">
+  {% if site.goal_active %}<input type="hidden" name="goal_active" value="on">{% endif %}
+  {% if site.show_goal_on_gateway %}<input type="hidden" name="show_goal_on_gateway" value="on">{% endif %}
+  <div class="style-grid">
+    <label>ظاهر نوار
+      <select name="goal_style">{% for value, label in goal_styles %}<option value="{{ value }}" {% if site.goal_style == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+    </label>
+    <label>گردی گوشه‌ها <input type="number" name="goal_radius" min="0" max="40" value="{{ site.goal_radius }}"></label>
+    <label>رنگ پرشدگی <input type="color" name="goal_fill" value="{{ site.goal_fill }}"></label>
+    <label>رنگ پس‌زمینه نوار <input type="color" name="goal_track" value="{{ site.goal_track }}"></label>
+    <label>رنگ نوشته <input type="color" name="goal_text" value="{{ site.goal_text }}"></label>
+    <label>رنگ پشت ویجت <input type="color" name="goal_bg" value="{{ site.goal_bg }}"></label>
+    <label>اندازه نوشته <input type="number" name="goal_font_size" min="10" max="40" value="{{ site.goal_font_size }}"></label>
+    <label>ارتفاع نوار <input type="number" name="goal_bar_height" min="8" max="48" value="{{ site.goal_bar_height }}"></label>
+  </div>
+  <label>قالب عنوان (از <code>&lt;NAME&gt;</code> استفاده کن)
+    <input name="goal_title_tpl" value="{{ site.goal_title_tpl }}">
+  </label>
+  <label>قالب جزئیات (<code>&lt;CURRENT&gt;</code> و <code>&lt;GOAL&gt;</code>)
+    <input name="goal_details_tpl" value="{{ site.goal_details_tpl }}">
+  </label>
+  <p class="muted" style="color:#e11d48">متغیرها را دست‌نخورده بگذار تا مبلغ زنده جایگزین شود.</p>
+  <label class="check"><input type="checkbox" name="goal_show_title" {% if site.goal_show_title %}checked{% endif %}> نمایش عنوان هدف</label>
+  <label class="check"><input type="checkbox" name="goal_show_details" {% if site.goal_show_details %}checked{% endif %}> نمایش جزئیات هدف</label>
+  <div class="goal-live-preview" style="--fill:{{ site.goal_fill }};--track:{{ site.goal_track }}">
+    <p style="margin:0 0 8px;font-weight:800;color:{{ site.goal_text }}">{{ site.goal_title_tpl|default:"هدف: "|cut:"<NAME>" }}{{ site.goal_title }}</p>
+    <div class="bar"><i style="width:{{ site.goal_percent }}%"></i></div>
+    <p class="muted" style="margin:8px 0 0">{{ site.goal_current|toman }} از {{ site.goal_target_toman|toman }} تومان</p>
+  </div>
+  <button class="btn" type="submit">ذخیره ظاهر</button>
+</form>
+{% endif %}
+{% endblock %}

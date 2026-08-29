@@ -1,0 +1,21 @@
+{% extends "panel/base.html" %}
+{% block kicker %}پنل کاربری / ابزارها / سانسور{% endblock %}
+{% block heading %}سانسور حمایت‌ها{% endblock %}
+{% block content %}
+<form class="card stack" method="post">
+  {% csrf_token %}
+  <label class="check"><input type="checkbox" name="censor_enabled" {% if site.censor_enabled %}checked{% endif %}> سانسور فعال باشد</label>
+  <label>رفتار
+    <select name="censor_mode">
+      {% for value, label in censor_modes %}
+        <option value="{{ value }}" {% if site.censor_mode == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <p class="muted">ستاره‌گذاری یعنی کلمه با *** عوض می‌شود. عدم نمایش یعنی آن دونیت روی استریم نمی‌آید ولی در پنل ثبت می‌شود.</p>
+  <label>کلمات (با کاما یا هر خط یکی)
+    <textarea name="censor_words" rows="8">{{ site.censor_words }}</textarea>
+  </label>
+  <button class="btn" type="submit">ذخیره سانسور</button>
+</form>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "panel/base.html" %}
+{% block kicker %}پنل کاربری / درگاه حمایت شما{% endblock %}
+{% block heading %}درگاه حمایت{% endblock %}
+{% block content %}
+<section class="grid-2">
+  <form class="card stack" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <label>نام نمایشی <input name="display_name" value="{{ site.display_name }}"></label>
+    <label>عنوان <input name="page_title" value="{{ site.page_title }}"></label>
+    <label>توضیح <textarea name="bio" rows="3">{{ site.bio }}</textarea></label>
+    <label>رنگ اصلی <input type="color" name="accent_color" value="{{ site.accent_color }}"></label>
+    <label>تم درگاه
+      <select name="gateway_theme">
+        {% for value, label in themes %}
+          <option value="{{ value }}" {% if site.gateway_theme == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <div class="row">
+      <label>حداقل تومان <input type="number" name="min_amount_toman" value="{{ site.min_amount_toman }}"></label>
+      <label>حداکثر تومان <input type="number" name="max_amount_toman" value="{{ site.max_amount_toman }}"></label>
+    </div>
+    <label>شکلک‌ها (با کاما) <input name="emoji_pack" value="{{ site.emoji_pack }}"></label>
+    <label>مبالغ پیشنهادی (با کاما) <input name="preset_amounts" value="{{ site.preset_amounts }}"></label>
+    <label>اینستاگرام <input name="instagram" value="{{ site.instagram }}" placeholder="https://"></label>
+    <label>تلگرام <input name="telegram" value="{{ site.telegram }}" placeholder="https://t.me/"></label>
+    <label>یوتیوب <input name="youtube" value="{{ site.youtube }}" placeholder="https://"></label>
+    <label>آواتار <input type="file" name="avatar" accept="image/*"></label>
+    {% if site.avatar %}<label class="check"><input type="checkbox" name="clear_avatar"> حذف آواتار فعلی</label>{% endif %}
+    <label class="check"><input type="checkbox" name="show_goal_on_gateway" {% if site.show_goal_on_gateway %}checked{% endif %}> نمایش هدف</label>
+    <label class="check"><input type="checkbox" name="show_recent_on_gateway" {% if site.show_recent_on_gateway %}checked{% endif %}> نمایش لیست حامیان</label>
+    <label class="check"><input type="checkbox" name="require_terms" {% if site.require_terms %}checked{% endif %}> تیک قوانین روی درگاه</label>
+    <button class="btn" type="submit">ذخیره درگاه</button>
+  </form>
+  <div class="card">
+    <h2>پیش‌نمایش</h2>
+    <p class="muted">لینک عمومی را در استریم، بایو و دیسکورد بگذار.</p>
+    <div class="copy-row">
+      <input readonly value="{{ overlay_urls.gateway }}">
+      <button type="button" class="tiny copy">کپی</button>
+    </div>
+    <iframe class="preview tall" src="{{ overlay_urls.gateway }}" title="gateway"></iframe>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <title>Timer</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@700;800&display=swap">
+  <link rel="stylesheet" href="/static/css/overlay.css">
+</head>
+<body class="overlay-body" data-kind="timer" data-mode="{{ mode }}" data-seconds="{{ seconds }}" data-key="{{ overlay_key }}">
+  <section class="timer-box top-box">
+    <p class="kicker">{% if mode == "stopwatch" %}کرونومتر{% else %}تایمر{% endif %}</p>
+    <p id="timer-digits" class="digits">00:00</p>
+  </section>
+  <script src="/static/js/overlay.js"></script>
+</body>
+</html>

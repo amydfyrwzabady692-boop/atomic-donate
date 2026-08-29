@@ -1,0 +1,25 @@
+{% extends "panel/base.html" %}
+{% block kicker %}پنل کاربری / فایل‌ها{% endblock %}
+{% block heading %}فایل‌ها{% endblock %}
+{% block content %}
+<p class="muted note">گیف، صدا و آواتاری که برای آلارم و درگاه آپلود کردی اینجا دیده می‌شود. آپلود جدید از صفحه همان ابزار انجام می‌شود.</p>
+<section class="tools">
+  {% for name, url, kind in assets %}
+    <article class="tool-card">
+      <h2>{{ name }}</h2>
+      {% if kind == "sound" %}
+        <audio controls src="{{ url }}"></audio>
+      {% else %}
+        <img class="media-preview" src="{{ url }}" alt="{{ name }}">
+      {% endif %}
+      <a class="go" href="{{ url }}" target="_blank">باز کردن فایل ←</a>
+    </article>
+  {% empty %}
+    <article class="tool-card">
+      <h2>هنوز فایلی نیست</h2>
+      <p>از ابزار هشدار یا درگاه، گیف و آواتار آپلود کن.</p>
+      <a class="go" href="{% url 'panel_alert' %}">رفتن به آلارم ←</a>
+    </article>
+  {% endfor %}
+</section>
+{% endblock %}

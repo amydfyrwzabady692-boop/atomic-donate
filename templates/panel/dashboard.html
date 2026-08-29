@@ -1,0 +1,45 @@
+{% extends "panel/base.html" %}
+{% load money %}
+{% block kicker %}پنل کاربری / داشبورد{% endblock %}
+{% block heading %}داشبورد{% endblock %}
+{% block content %}
+<section class="stats">
+  <article><span>۳۰ روز اخیر</span><b>{{ stats.month_sum|toman }} تومان</b><small>{{ stats.month_count }} حمایت</small></article>
+  <article><span>کل دریافتی</span><b>{{ stats.all_sum|toman }} تومان</b><small>{{ stats.all_count }} حمایت</small></article>
+  <article><span>پیشرفت هدف</span><b>{{ stats.goal_percent }}٪</b><small>{{ site.goal_title }}</small></article>
+  <article><span>ظاهر آلارم</span><b>{{ site.get_alert_style_display }}</b><small>صدای {{ site.alert_volume }}٪</small></article>
+</section>
+
+<section class="grid-2">
+  <div class="card">
+    <h2>۱۴ روز اخیر</h2>
+    <div class="chart">
+      {% for bar in chart %}
+        <div class="col" title="{{ bar.label }} — {{ bar.total|toman }}">
+          <i style="height:{{ bar.height }}%"></i>
+          <em>{{ bar.label }}</em>
+        </div>
+      {% empty %}
+        <p class="muted">هنوز پرداخت واقعی نیست. از آلارم تست استفاده کن.</p>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="card">
+    <h2>آلارم تست سریع</h2>
+    <form method="post" action="{% url 'panel_test' %}" class="stack">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="panel">
+      <label>نام <input name="name" value="حامی تست"></label>
+      <label>مبلغ <input type="number" name="amount" value="10000"></label>
+      <label>پیام <input name="message" value="عاشق استریمتم"></label>
+      <label>شکلک <input name="emoji" value="🔥"></label>
+      <button class="btn" type="submit">ارسال به OBS</button>
+    </form>
+  </div>
+</section>
+
+<section class="card">
+  <div class="row-head"><h2>آخرین حمایت‌ها</h2><a href="{% url 'panel_donations' %}">همه</a></div>
+  {% include "panel/_table.html" %}
+</section>
+{% endblock %}

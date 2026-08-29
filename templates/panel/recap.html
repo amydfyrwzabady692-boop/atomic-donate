@@ -1,0 +1,20 @@
+{% extends "panel/base.html" %}
+{% load money %}
+{% block kicker %}پنل کاربری / ابزارها / گزارش ماه{% endblock %}
+{% block heading %}گزارش ماه{% endblock %}
+{% block content %}
+<section class="stats">
+  <article><span>امروز</span><b>{{ recap.day|toman }} ت</b></article>
+  <article><span>هفته</span><b>{{ recap.week|toman }} ت</b></article>
+  <article><span>۳۰ روز</span><b>{{ recap.month|toman }} ت</b><small>{{ recap.count_month }} حمایت</small></article>
+  <article><span>کل</span><b>{{ recap.all|toman }} ت</b><small>{{ recap.count_all }} حمایت</small></article>
+</section>
+<section class="card">
+  <h2>بزرگ‌ترین حمایت‌کننده ماه</h2>
+  {% if recap.top %}
+    <p>{{ recap.top.name }} — {{ recap.top.amount|toman }} تومان</p>
+  {% else %}
+    <p class="muted">هنوز پرداخت واقعی در این ماه نیست.</p>
+  {% endif %}
+</section>
+{% endblock %}

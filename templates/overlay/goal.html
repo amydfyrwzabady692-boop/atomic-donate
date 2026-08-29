@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <title>Goal</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@700;800&display=swap">
+  <link rel="stylesheet" href="/static/css/overlay.css">
+</head>
+<body class="overlay-body" data-kind="goal" data-key="{{ overlay_key }}" data-style="{{ site.goal_style }}">
+  <section id="goal" class="goal-box style-{{ site.goal_style }}"
+    style="--fill:{{ site.goal_fill }};--track:{{ site.goal_track }};--widget-text:{{ site.goal_text }};--widget-bg:{{ site.goal_bg }};--widget-radius:{{ site.goal_radius }}px;--widget-font:{{ site.goal_font_size }}px;--bar-h:{{ site.goal_bar_height }}px{% if not site.goal_active %};display:none{% endif %}">
+    <p id="goal-title" class="goal-title"{% if not site.goal_show_title %} style="display:none"{% endif %}>{{ site.goal_title }}</p>
+    <div class="goal-track"><i id="goal-fill" style="width:{{ site.goal_percent }}%"></i></div>
+    <div class="ring mini" id="goal-ring" style="--p: {{ site.goal_percent }}"><b id="goal-pct">{{ site.goal_percent }}٪</b></div>
+    <div class="goal-split">
+      <span>الان <b id="goal-current">0</b></span>
+      <span>هدف <b id="goal-target">0</b></span>
+    </div>
+    <p id="goal-meta" class="goal-numbers"{% if not site.goal_show_details %} style="display:none"{% endif %}></p>
+  </section>
+  <script src="/static/js/overlay.js"></script>
+</body>
+</html>

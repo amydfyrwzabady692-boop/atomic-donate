@@ -1,0 +1,56 @@
+{% extends "panel/base.html" %}
+{% load money %}
+{% block kicker %}پنل کاربری / کنترل پنل استریم{% endblock %}
+{% block heading %}کنترل پنل استریم{% endblock %}
+{% block content %}
+<div class="stream-toolbar">
+  <form method="post" action="{% if dock %}{% url 'dock_skip' %}{% else %}{% url 'panel_skip' %}{% endif %}">
+    {% if not dock %}{% csrf_token %}{% endif %}
+    {% if overlay_key %}<input type="hidden" name="key" value="{{ overlay_key }}">{% endif %}
+    <button class="btn-red" type="submit">عبور از هشدار فعلی</button>
+  </form>
+  <div class="volume-line">
+    <span>صدای هشدار</span>
+    <input type="range" min="0" max="100" value="{{ site.alert_volume }}" data-output="vol-val" data-live-volume="alert">
+    <b id="vol-val">{{ site.alert_volume }}</b>٪
+  </div>
+</div>
+<section class="grid-2">
+  <div class="card stack">
+    <h2>تنظیمات سریع</h2>
+    <label>خواندن پیام <b id="tts-val">{{ site.tts_volume }}</b>٪
+      <input type="range" min="0" max="100" value="{{ site.tts_volume }}" data-output="tts-val" data-live-volume="tts">
+    </label>
+    <form method="post" action="{% if dock %}{% url 'dock_test' %}{% else %}{% url 'panel_test' %}{% endif %}" class="stack">
+      {% if not dock %}{% csrf_token %}{% endif %}
+      {% if overlay_key %}<input type="hidden" name="key" value="{{ overlay_key }}">{% endif %}
+      <input type="hidden" name="next" value="panel_stream">
+      <label>نام تست <input name="name" value="تست لایو"></label>
+      <label>مبلغ <input type="number" name="amount" value="10000"></label>
+      <label>پیام <input name="message" value="سلام از کنترل پنل"></label>
+      <button class="btn" type="submit">نمایش هشدار تست</button>
+    </form>
+  </div>
+  <div class="donate-cards">
+    {% for d in donations %}
+      <article class="donate-card">
+        <div class="who">
+          <span>{{ d.emoji }} {{ d.name }} مبلغ {{ d.amount_toman|toman }} تومان</span>
+          {% if not dock %}
+            {% if d.status == "paid" or d.status == "test" %}
+              <form method="post" action="{% url 'panel_replay' d.pk %}">{% csrf_token %}
+                <input type="hidden" name="next" value="panel_stream">
+                <button class="tiny" type="submit">↻</button>
+              </form>
+            {% endif %}
+          {% endif %}
+        </div>
+        {% if d.message %}<p class="muted">{{ d.message }}</p>{% endif %}
+        <span class="when">{{ d.created_at|timesince }} پیش</span>
+      </article>
+    {% empty %}
+      <p class="muted">هنوز حمایتی نیست.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

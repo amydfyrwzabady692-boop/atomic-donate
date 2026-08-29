@@ -1,0 +1,26 @@
+{% load money %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title }}</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;800&display=swap">
+  <link rel="stylesheet" href="/static/css/donate.css">
+  <style>:root { --accent: {{ site.accent_color }}; }</style>
+</head>
+<body class="theme-{{ site.gateway_theme }}">
+  <main class="result">
+    <section class="pay-card">
+      <p class="eye">{% if ok %}حمایت ثبت شد{% else %}انجام نشد{% endif %}</p>
+      <h1>{{ title }}</h1>
+      <p class="bio">{{ text }}</p>
+      {% if donation %}
+        <p class="meta">{{ donation.emoji }} {{ donation.name }} — {{ donation.amount_toman|toman }} تومان</p>
+        {% if donation.ref_id %}<p class="meta">کد پیگیری: {{ donation.ref_id }}</p>{% endif %}
+      {% endif %}
+      <a class="cta ghost" href="{% url 'donate' %}">بازگشت به درگاه</a>
+    </section>
+  </main>
+</body>
+</html>
