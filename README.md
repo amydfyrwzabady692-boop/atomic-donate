@@ -16,7 +16,7 @@ python manage.py runserver
 
 - درگاه: http://127.0.0.1:8000/
 - پنل: http://127.0.0.1:8000/panel/  (کاربر `admin` و رمزی که در `.env` نوشتی)
-- آلارم و صدا: http://127.0.0.1:8000/panel/alert/
+- آلارم و صدا: http://127.0.0.1:8000/panel/tools/alert/
 - ابزارهای OBS: http://127.0.0.1:8000/panel/tools/
 - آلارم تست را از پنل بزن تا بدون پرداخت، گیف و صدا روی OBS پخش شود.
 
@@ -30,15 +30,15 @@ copy .env.example .env
 
 ## OBS
 
-در پنل، صفحه «ابزارهای OBS» چهار لینک Browser Source و یک لینک Dock دارد:
+در پنل، صفحه «ابزارها» لینک Browser Source و داک استریم دارد:
 
 - آلارم گیف و صدا: Width 800 / Height 450 — Control audio via OBS روشن
 - لیست حامیان: ۳۸۰×۵۲۰
-- نوار هدف: ۵۲۰×۱۶۰
+- نوار هدف: ۵۴۰×۱۴۰
 - بزرگ‌ترین حامی: ۳۸۰×۲۲۰
 - کنترل استریم: View → Docks → Custom Browser Dock
 
-تیک Shutdown source when not visible را بردار. گیف و فایل صدا را از «آلارم و صدا» آپلود کن؛ حجم را همان‌جا کم و زیاد کن.
+تیک Shutdown source when not visible را بردار. گیف و فایل صدا را از «هشدار رویداد جدید» آپلود کن؛ حجم را همان‌جا کم و زیاد کن.
 
 ## VPS
 
