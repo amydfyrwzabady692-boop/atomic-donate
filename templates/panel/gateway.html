@@ -25,6 +25,15 @@
       </label>
     </div>
     <p class="muted">ایمیل و شماره از حامی گرفته نمی‌شود. فقط نام، مبلغ و پیام.</p>
+    <h2>کارت به کارت</h2>
+    <label class="check"><input type="checkbox" name="card_to_card_enabled" {% if site.card_to_card_enabled %}checked{% endif %}> نمایش کارت به کارت روی درگاه</label>
+    <label>شماره کارت
+      <input name="card_number" value="{{ site.formatted_card_number }}" dir="ltr" inputmode="numeric" autocomplete="off">
+    </label>
+    <div class="row">
+      <label>بانک <input name="card_bank" value="{{ site.card_bank }}"></label>
+      <label>به نام <input name="card_holder" value="{{ site.card_holder }}"></label>
+    </div>
     <label>شکلک‌ها (با کاما) <input name="emoji_pack" value="{{ site.emoji_pack }}"></label>
     <label>مبالغ پیشنهادی (با کاما) <input name="preset_amounts" value="{{ site.preset_amounts }}"></label>
     <label>اینستاگرام <input name="instagram" value="{{ site.instagram }}" placeholder="https://"></label>

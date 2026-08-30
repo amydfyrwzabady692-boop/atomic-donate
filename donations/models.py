@@ -1,6 +1,16 @@
+from pathlib import Path
+from uuid import uuid4
+
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Sum
+
+
+def receipt_upload_to(instance, filename):
+    ext = Path(filename or "").suffix.lower()
+    if ext not in {".jpg", ".jpeg", ".png", ".webp", ".gif"}:
+        ext = ".jpg"
+    return f"receipts/{uuid4().hex}{ext}"
 
 
 class SiteSettings(models.Model):
@@ -85,6 +95,10 @@ class SiteSettings(models.Model):
         validators=[MinValueValidator(1), MaxValueValidator(50)],
     )
     emoji_pack = models.CharField("شکلک‌ها", max_length=80, default="🔥,❤️,💎,👑,⚡,🎮,💜,🌟,🙌,💯")
+    card_to_card_enabled = models.BooleanField("کارت به کارت فعال", default=True)
+    card_number = models.CharField("شماره کارت", max_length=19, default="6219861997831192")
+    card_bank = models.CharField("بانک", max_length=40, default="سامان")
+    card_holder = models.CharField("صاحب کارت", max_length=80, default="امید فیروزآبادی")
     censor_enabled = models.BooleanField("سانسور فعال", default=False)
     censor_mode = models.CharField("نوع سانسور", max_length=8, choices=CensorMode.choices, default=CensorMode.STAR)
     censor_words = models.TextField("کلمات سانسور (با کاما یا خط جدید)", blank=True)
@@ -123,6 +137,15 @@ class SiteSettings(models.Model):
             if part.isdigit():
                 values.append(int(part))
         return values or [10_000, 50_000, 100_000]
+
+    def card_digits(self) -> str:
+        return "".join(ch for ch in (self.card_number or "") if ch.isdigit())[:16]
+
+    def formatted_card_number(self) -> str:
+        digits = self.card_digits()
+        if not digits:
+            return ""
+        return " ".join(digits[i : i + 4] for i in range(0, len(digits), 4))
 
     def goal_current(self) -> int:
         total = (
@@ -167,6 +190,10 @@ class Donation(models.Model):
         FAILED = "failed", "ناموفق"
         TEST = "test", "تست"
 
+    class Method(models.TextChoices):
+        ZARINPAL = "zarinpal", "زرین‌پال"
+        CARD = "card", "کارت به کارت"
+
     name = models.CharField("نام", max_length=64)
     amount_toman = models.PositiveIntegerField("مبلغ (تومان)")
     message = models.CharField("پیام", max_length=280, blank=True)
@@ -177,6 +204,8 @@ class Donation(models.Model):
     mobile = models.CharField("موبایل", max_length=15, blank=True)
     email = models.EmailField("ایمیل", blank=True)
     status = models.CharField("وضعیت", max_length=12, choices=Status.choices, default=Status.PENDING)
+    method = models.CharField("روش پرداخت", max_length=12, choices=Method.choices, default=Method.ZARINPAL)
+    receipt = models.ImageField("رسید کارت به کارت", upload_to=receipt_upload_to, blank=True)
     authority = models.CharField("Authority", max_length=64, unique=True, null=True, blank=True)
     ref_id = models.CharField("کد پیگیری", max_length=64, blank=True)
     is_test = models.BooleanField("تست", default=False)

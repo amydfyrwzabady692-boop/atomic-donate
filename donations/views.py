@@ -1,4 +1,5 @@
 from datetime import timedelta
+from pathlib import Path
 from uuid import uuid4
 
 from django.conf import settings
@@ -13,6 +14,10 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
+
+RECEIPT_EXTS = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
+RECEIPT_MAX_BYTES = 8 * 1024 * 1024
+PANEL_NEXT = {"panel", "panel_alert", "panel_stream", "panel_donations", "panel_goal", "panel_conditions"}
 
 from .engine import ensure_default_alert_tiers
 from .models import AlertCondition, Donation, SiteSettings
@@ -113,6 +118,31 @@ def _amount_bounds(site):
     return min_amt, max_amt
 
 
+def _card_pending():
+    return Donation.objects.filter(method=Donation.Method.CARD, status=Donation.Status.PENDING)
+
+
+def _card_digits(value, fallback=""):
+    digits = "".join(ch for ch in (value or "") if ch.isdigit())[:16]
+    return digits if len(digits) >= 12 else fallback
+
+
+def _validate_receipt(upload):
+    if not upload:
+        return "عکس رسید کارت به کارت را بفرست."
+    ext = Path(upload.name or "").suffix.lower()
+    if ext not in RECEIPT_EXTS:
+        return "فرمت رسید باید jpg، png، webp یا gif باشد."
+    if getattr(upload, "size", 0) > RECEIPT_MAX_BYTES:
+        return "حجم رسید حداکثر ۸ مگابایت باشد."
+    return ""
+
+
+def _panel_next(request, default="panel_donations"):
+    nxt = request.POST.get("next")
+    return nxt if nxt in PANEL_NEXT else default
+
+
 def donate_page(request):
     return render(request, "donate.html", _donate_ctx(SiteSettings.load()))
 
@@ -142,6 +172,10 @@ def start_payment(request):
     amount = _int(request.POST.get("amount"), 0)
     min_amt, max_amt = _amount_bounds(site)
 
+    method = (request.POST.get("method") or Donation.Method.ZARINPAL).strip()
+    if method not in Donation.Method.values:
+        method = Donation.Method.ZARINPAL
+
     errors = []
     if site.require_terms and request.POST.get("terms") != "on":
         errors.append("قوانین حمایت را بپذیر.")
@@ -151,6 +185,12 @@ def start_payment(request):
         errors.append(f"حداقل مبلغ {min_amt:,} تومان است.")
     if amount > max_amt:
         errors.append(f"حداکثر مبلغ {max_amt:,} تومان است (سقف زرین‌پال).")
+    if method == Donation.Method.CARD:
+        if not site.card_to_card_enabled:
+            errors.append("کارت به کارت الان فعال نیست.")
+        receipt_error = _validate_receipt(request.FILES.get("receipt"))
+        if receipt_error:
+            errors.append(receipt_error)
     if errors:
         return render(request, "donate.html", _donate_ctx(site, errors, request.POST), status=400)
 
@@ -162,8 +202,29 @@ def start_payment(request):
         show_name=request.POST.get("show_name") == "on",
         show_message=request.POST.get("show_message") == "on",
         show_in_list=request.POST.get("show_in_list") == "on",
+        method=method,
         status=Donation.Status.PENDING,
     )
+    if method == Donation.Method.CARD:
+        donation.receipt = request.FILES["receipt"]
+        try:
+            donation.save(update_fields=["receipt"])
+        except Exception:
+            donation.delete()
+            errors.append("عکس رسید معتبر نیست.")
+            return render(request, "donate.html", _donate_ctx(site, errors, request.POST), status=400)
+        return render(
+            request,
+            "result.html",
+            {
+                "ok": True,
+                "waiting": True,
+                "site": site,
+                "donation": donation,
+                "title": "رسید دریافت شد",
+                "text": "رسیدت ثبت شد. بعد از تأیید، گیف دونیت روی استریم پخش می‌شود و اسمت می‌رود توی لیست.",
+            },
+        )
     try:
         authority = request_payment(donation)
     except ZarinPalError as exc:
@@ -356,6 +417,7 @@ def panel_home(request):
                 "goal_percent": site.goal_percent(),
             },
             donations=Donation.objects.all()[:8],
+            card_pending=_card_pending(),
             chart=chart,
         ),
     )
@@ -370,7 +432,7 @@ def panel_donations(request):
     return render(
         request,
         "panel/donations.html",
-        _panel_ctx(donations=qs[:200], q=q),
+        _panel_ctx(donations=qs[:200], q=q, card_pending=_card_pending()),
     )
 
 
@@ -398,6 +460,10 @@ def panel_gateway(request):
         site.youtube = (request.POST.get("youtube") or "")[:160]
         site.require_terms = request.POST.get("require_terms") == "on"
         site.emoji_pack = (request.POST.get("emoji_pack") or site.emoji_pack)[:80]
+        site.card_to_card_enabled = request.POST.get("card_to_card_enabled") == "on"
+        site.card_number = _card_digits(request.POST.get("card_number"), site.card_digits())
+        site.card_bank = (request.POST.get("card_bank") or site.card_bank)[:40]
+        site.card_holder = (request.POST.get("card_holder") or site.card_holder)[:80]
         if request.FILES.get("avatar"):
             site.avatar = request.FILES["avatar"]
         if request.POST.get("clear_avatar") == "on":
@@ -564,6 +630,8 @@ def panel_files(request):
             assets.append((f"گیف شرط {cond.label or cond.min_toman}", cond.gif.url, "alert"))
         if cond.sound:
             assets.append((f"صدای شرط {cond.label or cond.min_toman}", cond.sound.url, "sound"))
+    for donation in Donation.objects.exclude(receipt="").order_by("-created_at")[:12]:
+        assets.append((f"رسید {donation.name}", donation.receipt.url, "receipt"))
     return render(request, "panel/files.html", _panel_ctx(assets=assets))
 
 
@@ -591,6 +659,7 @@ def panel_stream(request):
         "panel/stream.html",
         _panel_ctx(
             donations=Donation.objects.exclude(status=Donation.Status.PENDING)[:12],
+            card_pending=_card_pending() if request.user.is_authenticated else Donation.objects.none(),
             overlay_key=request.GET.get("key", ""),
             dock=not request.user.is_authenticated,
         ),
@@ -653,6 +722,40 @@ def dock_skip(request):
     broadcast_skip()
     key = request.POST.get("key") or request.GET.get("key") or ""
     return redirect(f"/panel/stream/?key={key}")
+
+
+@login_required
+@require_POST
+def panel_confirm_card(request, pk):
+    donation = get_object_or_404(
+        Donation,
+        pk=pk,
+        method=Donation.Method.CARD,
+        status=Donation.Status.PENDING,
+    )
+    donation.status = Donation.Status.PAID
+    donation.paid_at = timezone.now()
+    if not donation.ref_id:
+        donation.ref_id = f"card-{donation.pk}"
+    donation.save(update_fields=["status", "paid_at", "ref_id"])
+    broadcast_donation(donation, SiteSettings.load())
+    messages.success(request, f"حمایت {donation.name} تأیید شد و روی استریم پخش شد.")
+    return redirect(_panel_next(request))
+
+
+@login_required
+@require_POST
+def panel_reject_card(request, pk):
+    donation = get_object_or_404(
+        Donation,
+        pk=pk,
+        method=Donation.Method.CARD,
+        status=Donation.Status.PENDING,
+    )
+    donation.status = Donation.Status.FAILED
+    donation.save(update_fields=["status"])
+    messages.success(request, f"رسید {donation.name} رد شد.")
+    return redirect(_panel_next(request))
 
 
 @login_required

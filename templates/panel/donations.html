@@ -2,6 +2,7 @@
 {% block kicker %}پنل کاربری / حمایت‌ها{% endblock %}
 {% block heading %}حمایت‌ها{% endblock %}
 {% block content %}
+{% include "panel/_receipts.html" %}
 <section class="card">
   <form class="copy-row" method="get">
     <input name="q" value="{{ q }}" placeholder="جستجو نام، پیام یا کد پیگیری">

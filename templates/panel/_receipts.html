@@ -1,0 +1,33 @@
+{% load money %}
+{% if card_pending %}
+<section class="card receipts-queue">
+  <h2>رسیدهای کارت به کارت</h2>
+  <p class="muted">بعد از تأیید، گیف دونیت پخش می‌شود و حمایت می‌رود توی لیست.</p>
+  {% for d in card_pending %}
+    <article class="receipt-item">
+      {% if d.receipt %}
+        <a href="{{ d.receipt.url }}" target="_blank" rel="noreferrer">
+          <img src="{{ d.receipt.url }}" alt="رسید {{ d.name }}">
+        </a>
+      {% else %}
+        <div class="receipt-missing">بدون عکس</div>
+      {% endif %}
+      <div>
+        <strong>{{ d.emoji }} {{ d.name }} — {{ d.amount_toman|toman }} تومان</strong>
+        {% if d.message %}<p class="muted">{{ d.message }}</p>{% endif %}
+        <span class="when">{{ d.created_at|timesince }} پیش</span>
+      </div>
+      <div class="actions">
+        <form method="post" action="{% url 'panel_confirm_card' d.pk %}">{% csrf_token %}
+          <input type="hidden" name="next" value="{{ request.resolver_match.url_name }}">
+          <button class="btn" type="submit">تأیید و پخش</button>
+        </form>
+        <form method="post" action="{% url 'panel_reject_card' d.pk %}">{% csrf_token %}
+          <input type="hidden" name="next" value="{{ request.resolver_match.url_name }}">
+          <button class="btn-red" type="submit">رد کردن</button>
+        </form>
+      </div>
+    </article>
+  {% endfor %}
+</section>
+{% endif %}

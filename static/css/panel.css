@@ -220,7 +220,49 @@ th, td { text-align: right; padding: 12px 8px; border-bottom: 1px solid var(--li
 .tag { padding: 3px 8px; border-radius: 999px; font-size: 12px; }
 .tag.paid { background: #16653455; color: #bbf7d0; }
 .tag.test { background: #3f3f4666; color: #e2e8f0; }
-.tag.failed, .tag.pending { background: #7f1d1d55; color: #fecaca; }
+.tag.failed { background: #7f1d1d55; color: #fecaca; }
+.tag.pending { background: #78350f66; color: #fde68a; }
+.tag.card { background: #1e3a5a66; color: #bae6fd; }
+.tag.zarinpal { background: #164e6355; color: #a5f3fc; }
+.receipt-thumb {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  vertical-align: middle;
+}
+.receipts-queue { display: grid; gap: 12px; }
+.receipts-queue h2 { margin-bottom: 4px; }
+.receipt-item {
+  display: grid;
+  grid-template-columns: 140px 1fr auto;
+  gap: 14px;
+  align-items: center;
+  background: var(--soft);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 12px;
+}
+.receipt-item img {
+  width: 140px;
+  height: 96px;
+  object-fit: cover;
+  border-radius: 12px;
+  display: block;
+  border: 1px solid var(--line);
+}
+.receipt-item .when { color: var(--muted); font-size: 12px; }
+.receipt-missing {
+  width: 140px;
+  height: 96px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: #111318;
+  color: var(--muted);
+  font-size: 12px;
+}
 .chart { display: flex; align-items: end; gap: 8px; height: 180px; padding: 8px 0; }
 .col { flex: 1; display: flex; flex-direction: column; justify-content: end; align-items: center; height: 100%; gap: 6px; }
 .col i { width: 100%; background: linear-gradient(180deg, #e2e8f0, #7dd3fc); border-radius: 8px 8px 4px 4px; display: block; }
@@ -382,7 +424,7 @@ th, td { text-align: right; padding: 12px 8px; border-bottom: 1px solid var(--li
   .tools, .stats, .row-3 { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 980px) {
-  body.panel-app, .stats, .grid-2, .tools, .style-grid, .row, .row-3 { grid-template-columns: 1fr; }
+  body.panel-app, .stats, .grid-2, .tools, .style-grid, .row, .row-3, .receipt-item { grid-template-columns: 1fr; }
   body.panel-app { display: block; }
   .shell { min-height: auto; margin-top: 8px; }
 }

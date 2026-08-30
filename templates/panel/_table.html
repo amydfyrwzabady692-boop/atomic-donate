@@ -1,19 +1,39 @@
 {% load money %}
 <div class="table-wrap">
   <table>
-    <thead><tr><th>زمان</th><th>نام</th><th>مبلغ</th><th>شکلک</th><th>وضعیت</th><th>پیام</th><th></th></tr></thead>
+    <thead><tr><th>زمان</th><th>نام</th><th>مبلغ</th><th>روش</th><th>وضعیت</th><th>رسید</th><th>پیام</th><th></th></tr></thead>
     <tbody>
       {% for d in donations %}
         <tr>
           <td>{{ d.created_at|date:"m/d H:i" }}</td>
-          <td>{{ d.name }}</td>
+          <td>{{ d.emoji }} {{ d.name }}</td>
           <td>{{ d.amount_toman|toman }}</td>
-          <td>{{ d.emoji }}</td>
+          <td><span class="tag {{ d.method }}">{{ d.get_method_display }}</span></td>
           <td><span class="tag {{ d.status }}">{{ d.get_status_display }}</span></td>
+          <td>
+            {% if d.receipt %}
+              <a href="{{ d.receipt.url }}" target="_blank" rel="noreferrer">
+                <img class="receipt-thumb" src="{{ d.receipt.url }}" alt="رسید">
+              </a>
+            {% else %}
+              —
+            {% endif %}
+          </td>
           <td>{{ d.message }}</td>
           <td>
             {% if not dock %}
-            {% if d.status == "paid" or d.status == "test" %}
+            {% if d.method == "card" and d.status == "pending" %}
+              <div class="actions">
+                <form method="post" action="{% url 'panel_confirm_card' d.pk %}">{% csrf_token %}
+                  <input type="hidden" name="next" value="{{ request.resolver_match.url_name }}">
+                  <button class="tiny" type="submit">تأیید و پخش</button>
+                </form>
+                <form method="post" action="{% url 'panel_reject_card' d.pk %}">{% csrf_token %}
+                  <input type="hidden" name="next" value="{{ request.resolver_match.url_name }}">
+                  <button class="tiny" type="submit">رد</button>
+                </form>
+              </div>
+            {% elif d.status == "paid" or d.status == "test" %}
               <form method="post" action="{% url 'panel_replay' d.pk %}">{% csrf_token %}
                 <input type="hidden" name="next" value="{{ request.resolver_match.url_name }}">
                 <button class="tiny" type="submit">پخش دوباره</button>
@@ -23,7 +43,7 @@
           </td>
         </tr>
       {% empty %}
-        <tr><td colspan="7">حمایتی نیست.</td></tr>
+        <tr><td colspan="8">حمایتی نیست.</td></tr>
       {% endfor %}
     </tbody>
   </table>

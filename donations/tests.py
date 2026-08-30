@@ -1,7 +1,7 @@
 from django.test import Client, TestCase
 
 from donations.engine import list_tier, match_condition
-from donations.models import AlertCondition, SiteSettings
+from donations.models import AlertCondition, Donation, SiteSettings
 
 
 class MatchConditionTests(TestCase):
@@ -56,6 +56,76 @@ class DonatePageTests(TestCase):
         self.assertNotIn("شماره همراه", body)
         self.assertIn("/static/img/omid-atomic.png", body)
         self.assertIn("پرداخت امن", body)
+        self.assertIn("کارت به کارت", body)
+        self.assertIn("6219 8619 9783 1192", body)
+        self.assertIn("امید فیروزآبادی", body)
+        self.assertIn("سامان", body)
+        self.assertIn("ارسال رسید", body)
+        self.assertIn('name="method"', body)
+        self.assertIn('value="zarinpal"', body)
+        self.assertIn("checked", body)
+
+
+class CardToCardTests(TestCase):
+    TINY_PNG = (
+        b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01"
+        b"\x08\x06\x00\x00\x00\x1f\x15\xc4\x89\x00\x00\x00\nIDATx\x9cc\x00\x01"
+        b"\x00\x00\x05\x00\x01\r\n-\xb4\x00\x00\x00\x00IEND\xaeB`\x82"
+    )
+
+    def setUp(self):
+        SiteSettings.load()
+        self.client = Client(HTTP_HOST="127.0.0.1")
+
+    def _form(self, **extra):
+        data = {
+            "name": "حامی کارت",
+            "amount": "10000",
+            "message": "سلام",
+            "emoji": "🔥",
+            "show_name": "on",
+            "show_message": "on",
+            "show_in_list": "on",
+            "terms": "on",
+            "method": "card",
+        }
+        data.update(extra)
+        return data
+
+    def test_card_without_receipt_stays_off_the_list(self):
+        response = self.client.post("/pay/", self._form())
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(Donation.objects.count(), 0)
+        body = response.content.decode("utf-8")
+        self.assertIn("عکس رسید", body)
+
+    def test_card_with_receipt_waits_for_confirm(self):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+
+        receipt = SimpleUploadedFile("slip.png", self.TINY_PNG, content_type="image/png")
+        response = self.client.post("/pay/", self._form(receipt=receipt))
+        self.assertEqual(response.status_code, 200)
+        donation = Donation.objects.get()
+        self.assertEqual(donation.status, Donation.Status.PENDING)
+        self.assertEqual(donation.method, Donation.Method.CARD)
+        self.assertTrue(donation.receipt)
+        self.assertIn("در انتظار تأیید", response.content.decode("utf-8"))
+
+    def test_confirm_marks_paid(self):
+        from django.contrib.auth.models import User
+        from django.core.files.uploadedfile import SimpleUploadedFile
+
+        receipt = SimpleUploadedFile("slip.png", self.TINY_PNG, content_type="image/png")
+        self.client.post("/pay/", self._form(receipt=receipt))
+        donation = Donation.objects.get()
+        User.objects.create_user("omid", password="secret", is_staff=True)
+        self.client.login(username="omid", password="secret")
+        response = self.client.post(f"/panel/donations/{donation.pk}/confirm/", {"next": "panel_donations"})
+        self.assertEqual(response.status_code, 302)
+        donation.refresh_from_db()
+        self.assertEqual(donation.status, Donation.Status.PAID)
+        self.assertTrue(donation.paid_at)
+        self.assertTrue(donation.ref_id.startswith("card-"))
 
 
 class OverlayTests(TestCase):

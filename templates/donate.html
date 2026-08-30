@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>حمایت از {{ site.display_name }}</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700;800&display=swap">
-  <link rel="stylesheet" href="/static/css/donate.css">
+  <link rel="stylesheet" href="/static/css/donate.css?v=card">
   <style>:root { --accent: {{ site.accent_color }}; }</style>
 </head>
 <body class="gate theme-{{ site.gateway_theme }}">
@@ -50,8 +50,46 @@
 
       {% if errors %}<ul class="errors">{% for error in errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
 
-      <form method="post" action="{% url 'pay' %}" class="form">
+      <form method="post" action="{% url 'pay' %}" class="form" enctype="multipart/form-data">
         {% csrf_token %}
+        <p class="label">روش پرداخت</p>
+        <div class="pay-methods">
+          <label class="pay-method{% if form.method != 'card' %} on{% endif %}">
+            <input type="radio" name="method" value="zarinpal" {% if form.method != 'card' %}checked{% endif %}>
+            <span>پرداخت امن</span>
+            <small>زرین‌پال — حالت پیش‌فرض</small>
+          </label>
+          {% if site.card_to_card_enabled %}
+          <label class="pay-method{% if form.method == 'card' %} on{% endif %}">
+            <input type="radio" name="method" value="card" {% if form.method == 'card' %}checked{% endif %}>
+            <span>کارت به کارت</span>
+            <small>بانک {{ site.card_bank }}</small>
+          </label>
+          {% endif %}
+        </div>
+        {% if site.card_to_card_enabled %}
+        <div class="card-pay" id="card-pay" {% if form.method != 'card' %}hidden{% endif %}>
+          <article class="bank-card">
+            <div class="bank-card-top">
+              <b>{{ site.card_bank }}</b>
+              <em>کارت به کارت</em>
+            </div>
+            <div class="bank-card-chip" aria-hidden="true"></div>
+            <p class="bank-card-number" dir="ltr">{{ site.formatted_card_number }}</p>
+            <div class="bank-card-bottom">
+              <span>
+                <small>به نام</small>
+                {{ site.card_holder }}
+              </span>
+              <button type="button" class="copy-card" id="copy-card" data-card="{{ site.card_digits }}">کپی شماره</button>
+            </div>
+          </article>
+          <label class="receipt-box">ارسال رسید
+            <input type="file" name="receipt" accept="image/jpeg,image/png,image/webp,image/gif">
+            <small>بعد از واریز، عکس رسید را همین‌جا بفرست تا بعد از تأیید روی استریم پخش شود.</small>
+          </label>
+        </div>
+        {% endif %}
         <label class="amount-label">مبلغ حمایت
           <input type="number" name="amount" min="{{ min_amt }}" max="{{ max_amt }}" step="1000" required
             value="{{ form.amount|default:min_amt }}" placeholder="{{ min_amt }}">
@@ -84,7 +122,7 @@
         {% endif %}
         <div class="actions">
           {% if site.show_recent_on_gateway %}<button type="button" class="ghost" id="toggle-donors">حامیان</button>{% endif %}
-          <button class="cta" type="submit">پرداخت امن</button>
+          <button class="cta" type="submit" id="pay-cta">{% if form.method == 'card' %}ارسال رسید{% else %}پرداخت امن{% endif %}</button>
         </div>
       </form>
     </article>
@@ -101,6 +139,6 @@
     </ul>
   </aside>
   {% endif %}
-  <script src="/static/js/donate.js"></script>
+  <script src="/static/js/donate.js?v=card"></script>
 </body>
 </html>

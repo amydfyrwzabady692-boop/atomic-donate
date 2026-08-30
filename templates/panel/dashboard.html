@@ -21,6 +21,8 @@
   </div>
 </section>
 
+{% include "panel/_receipts.html" %}
+
 <section class="stats">
   <article><span>۳۰ روز اخیر</span><b>{{ stats.month_sum|toman }} تومان</b><small>{{ stats.month_count }} حمایت</small></article>
   <article><span>کل دریافتی</span><b>{{ stats.all_sum|toman }} تومان</b><small>{{ stats.all_count }} حمایت</small></article>

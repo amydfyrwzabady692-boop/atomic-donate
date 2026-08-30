@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{ title }}</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;800&display=swap">
-  <link rel="stylesheet" href="/static/css/donate.css">
+  <link rel="stylesheet" href="/static/css/donate.css?v=card">
   <style>:root { --accent: {{ site.accent_color }}; }</style>
 </head>
 <body class="gate theme-{{ site.gateway_theme }}">
@@ -14,7 +14,7 @@
   <main class="result">
     <section class="pay-card">
       <img class="mark" src="/static/img/omid-atomic.png" alt="">
-      <p class="eye">{% if ok %}حمایت ثبت شد{% else %}انجام نشد{% endif %}</p>
+      <p class="eye">{% if waiting %}در انتظار تأیید{% elif ok %}حمایت ثبت شد{% else %}انجام نشد{% endif %}</p>
       <h1>{{ title }}</h1>
       <p class="bio">{{ text }}</p>
       {% if donation %}
