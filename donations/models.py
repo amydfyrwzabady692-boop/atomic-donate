@@ -22,7 +22,7 @@ class SiteSettings(models.Model):
         STACK = "stack", "لیست عمودی"
         CARDS = "cards", "کارت‌ها"
         TICKER = "ticker", "نوار افقی متحرک"
-        PILLS = "pills", "قرص‌های رنگی"
+        PILLS = "pills", "قرص‌های اتمیک"
 
     class GoalStyle(models.TextChoices):
         BAR = "bar", "نوار افقی"
@@ -90,7 +90,7 @@ class SiteSettings(models.Model):
     censor_words = models.TextField("کلمات سانسور (با کاما یا خط جدید)", blank=True)
 
     alert_style = models.CharField("ظاهر آلارم", max_length=20, choices=AlertStyle.choices, default=AlertStyle.GLASS)
-    list_style = models.CharField("ظاهر لیست", max_length=20, choices=ListStyle.choices, default=ListStyle.CARDS)
+    list_style = models.CharField("ظاهر لیست", max_length=20, choices=ListStyle.choices, default=ListStyle.PILLS)
     goal_style = models.CharField("ظاهر هدف", max_length=20, choices=GoalStyle.choices, default=GoalStyle.BAR)
 
     alert_gif = models.FileField("گیف آلارم", upload_to="alerts/", blank=True)

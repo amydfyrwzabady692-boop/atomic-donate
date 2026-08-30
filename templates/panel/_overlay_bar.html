@@ -1,0 +1,10 @@
+<div class="overlay-bar">
+  <div class="link-box">
+    <p class="muted">لینک ابزار برای Browser Source در OBS{% if size %} — پیشنهاد {{ size }}{% endif %}</p>
+    <input readonly value="{{ bar_url }}">
+  </div>
+  <div class="actions">
+    <a class="btn" href="{{ bar_url }}" target="_blank">نمایش ابزار</a>
+    <button type="button" class="btn copy" data-copy="{{ bar_url }}">کپی لینک</button>
+  </div>
+</div>

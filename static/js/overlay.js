@@ -214,14 +214,12 @@ function startQueue(donors) {
 }
 
 function showQueueItem(item) {
-  const set = (id, value) => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = value || "";
-  };
-  set("q-emoji", item.emoji || "💜");
-  set("q-name", item.name);
-  set("q-amount", `${formatToman(item.amount)} تومان`);
-  set("q-msg", item.message);
+  const li = document.getElementById("q-row");
+  const name = document.getElementById("q-name");
+  const amount = document.getElementById("q-amount");
+  if (name) name.textContent = item.name || "";
+  if (amount) amount.textContent = formatToman(item.amount);
+  if (li) li.className = amountTier(item.amount);
 }
 
 function renderList(donors) {
@@ -241,8 +239,17 @@ function prependDonor(data) {
   while (root.children.length > (cfg.list_size || 8)) root.lastElementChild.remove();
 }
 
+function amountTier(amount) {
+  const n = Number(amount || 0);
+  if (n >= 500000) return "tier-atomic";
+  if (n >= 100000) return "tier-nova";
+  if (n >= 20000) return "tier-spark";
+  return "tier-core";
+}
+
 function itemHtml(d) {
-  return `<li><span class="who"><i class="emo">${escapeHtml(d.emoji || "")}</i> ${escapeHtml(d.name)}</span><span class="amt">${formatToman(d.amount)} ت</span></li>`;
+  const name = escapeHtml(d.name || "");
+  return `<li class="${amountTier(d.amount)}"><span class="who">${name}</span><span class="amt">${formatToman(d.amount)}</span></li>`;
 }
 
 function renderGoal(goal) {
@@ -281,8 +288,10 @@ function renderTop(top) {
   const amount = document.getElementById("top-amount");
   const emoji = document.getElementById("top-emoji");
   if (name) name.textContent = top.name;
-  if (amount) amount.textContent = `${formatToman(top.amount)} تومان`;
+  if (amount) amount.textContent = formatToman(top.amount);
   if (emoji) emoji.textContent = top.emoji || "👑";
+  const row = document.getElementById("top-row");
+  if (row) row.className = amountTier(top.amount);
 }
 
 function enqueue(data) {
@@ -453,7 +462,14 @@ function renderTimer() {
   const h = Math.floor(total / 3600);
   const m = Math.floor((total % 3600) / 60);
   const s = Math.floor(total % 60);
-  el.textContent = h > 0 ? `${pad(h)}:${pad(m)}:${pad(s)}` : `${pad(m)}:${pad(s)}`;
+  el.textContent = `${pad(h)} : ${pad(m)} : ${pad(s)}`;
+  const box = document.querySelector(".donathon");
+  if (box) {
+    const initial = Number(body.dataset.seconds || 3600) || 3600;
+    const elapsed = timerMode === "stopwatch" ? timerElapsed : Math.max(0, initial - timerRemain);
+    const pct = timerMode === "stopwatch" ? Math.min(100, (timerElapsed / 3600) * 100) : Math.min(100, (elapsed / initial) * 100);
+    box.style.setProperty("--sand", `${pct}%`);
+  }
 }
 
 function applyTimerCommand(data) {

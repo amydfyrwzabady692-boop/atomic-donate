@@ -7,9 +7,14 @@
   <link rel="stylesheet" href="/static/css/overlay.css">
 </head>
 <body class="overlay-body" data-kind="timer" data-mode="{{ mode }}" data-seconds="{{ seconds }}" data-key="{{ overlay_key }}">
-  <section class="timer-box top-box">
-    <p class="kicker">{% if mode == "stopwatch" %}کرونومتر{% else %}تایمر{% endif %}</p>
-    <p id="timer-digits" class="digits">00:00</p>
+  <section class="donathon">
+    <p id="timer-digits" class="digits">00 : 00 : 00</p>
+    <div class="hourglass">
+      <div class="frame"></div>
+      <div class="bulb top"><i></i></div>
+      <div class="bulb bot"><i></i></div>
+    </div>
+    <span class="badge">Atomic Donathon</span>
   </section>
   <script src="/static/js/overlay.js"></script>
 </body>

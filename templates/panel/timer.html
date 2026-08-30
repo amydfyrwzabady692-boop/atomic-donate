@@ -1,40 +1,37 @@
 {% extends "panel/base.html" %}
 {% block kicker %}پنل کاربری / ابزارها / تایمر{% endblock %}
-{% block heading %}تایمر و کرونومتر{% endblock %}
+{% block heading %}تایمر و دوناتون{% endblock %}
 {% block content %}
-<p class="muted">لینک را در OBS به‌صورت Browser Source بگذار. اندازه پیشنهادی ۲۸۰×۱۶۰. شمارش معکوس یا کرونومتر بدون پس‌زمینه روی استریم می‌نشیند.</p>
+<p class="muted">ویجت عمودی Atomic Donathon را در OBS به‌صورت Browser Source بگذار. اندازه پیشنهادی ۲۴۰×۳۲۰. پس‌زمینه شفاف است.</p>
 <div class="grid-2">
   <div class="card stack">
     <h2>شمارش معکوس</h2>
     <label>ثانیه
       <input id="timer-seconds" type="number" min="10" value="3600">
     </label>
-    <div class="copy-row">
-      <input id="timer-url" readonly value="{{ overlay_urls.timer }}">
-      <button type="button" class="tiny copy">کپی</button>
-    </div>
-    <a class="btn" id="timer-open" href="{{ overlay_urls.timer }}" target="_blank">نمایش ابزار</a>
+    {% include "panel/_overlay_bar.html" with bar_url=overlay_urls.timer size="۲۴۰×۳۲۰" %}
   </div>
   <div class="card stack">
     <h2>کرونومتر</h2>
-    <p class="muted">از صفر به بالا می‌شمارد.</p>
-    <div class="copy-row">
-      <input readonly value="{{ overlay_urls.stopwatch }}">
-      <button type="button" class="tiny copy">کپی</button>
-    </div>
-    <a class="btn" href="{{ overlay_urls.stopwatch }}" target="_blank">نمایش ابزار</a>
-    <iframe class="preview" src="{{ overlay_urls.stopwatch }}" title="stopwatch"></iframe>
+    <p class="muted">از صفر به بالا می‌شمارد؛ همان ویجت دوناتون است.</p>
+    {% include "panel/_overlay_bar.html" with bar_url=overlay_urls.stopwatch size="۲۴۰×۳۲۰" %}
+    <iframe class="preview tall" src="{{ overlay_urls.stopwatch }}" title="stopwatch"></iframe>
   </div>
 </div>
 <script>
   const seconds = document.getElementById("timer-seconds");
-  const url = document.getElementById("timer-url");
-  const open = document.getElementById("timer-open");
-    const base = "{{ overlay_urls.timer|escapejs }}";
+  const base = "{{ overlay_urls.timer|escapejs }}";
   function sync() {
     const next = String(base).replace(/seconds=\d+/, "seconds=" + (seconds.value || "3600"));
-    url.value = next;
-    open.href = next;
+    document.querySelectorAll(".overlay-bar input").forEach((input, i) => {
+      if (i === 0) input.value = next;
+    });
+    document.querySelectorAll(".overlay-bar .copy").forEach((btn, i) => {
+      if (i === 0) btn.dataset.copy = next;
+    });
+    document.querySelectorAll(".overlay-bar a.btn").forEach((a, i) => {
+      if (i === 0) a.href = next;
+    });
   }
   seconds.addEventListener("input", sync);
 </script>

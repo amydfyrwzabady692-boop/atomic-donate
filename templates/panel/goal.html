@@ -3,14 +3,7 @@
 {% block kicker %}پنل کاربری / ابزارها / هدف حمایت مالی{% endblock %}
 {% block heading %}هدف حمایت مالی{% endblock %}
 {% block content %}
-<div class="actions" style="margin-bottom:16px">
-  <a class="btn" href="{{ overlay_urls.goal }}" target="_blank">نمایش ابزار</a>
-  <button type="button" class="btn-soft copy" data-copy="{{ overlay_urls.goal }}">کپی لینک</button>
-</div>
-<div class="copy-row">
-  <input readonly value="{{ overlay_urls.goal }}">
-  <button type="button" class="tiny copy">کپی</button>
-</div>
+{% include "panel/_overlay_bar.html" with bar_url=overlay_urls.goal size="۵۴۰×۱۴۰" %}
 
 <nav class="tabs">
   <a class="{% if tab != 'look' %}active{% endif %}" href="{% url 'panel_goal' %}">تنظیمات اصلی هدف</a>

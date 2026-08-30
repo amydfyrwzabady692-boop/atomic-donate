@@ -7,11 +7,11 @@
   <link rel="stylesheet" href="/static/css/overlay.css">
 </head>
 <body class="overlay-body" data-kind="label" data-mode="{{ mode }}" data-key="{{ overlay_key }}">
-  <section class="top-box" style="--widget-bg:{{ site.list_bg }};--widget-text:{{ site.list_text }};--fill:{{ site.goal_fill }}">
-    <p class="kicker" id="label-title">حمایت صاحب عنوان</p>
-    <p id="top-emoji" class="alert-emoji">👑</p>
-    <p id="top-name">—</p>
-    <p id="top-amount" class="alert-amount"></p>
+  <p class="kicker" id="label-title" style="margin:12px 18px 6px">حمایت صاحب عنوان</p>
+  <section class="list-box style-pills">
+    <ul>
+      <li id="top-row" class="tier-nova"><span class="who" id="top-name">—</span><span class="amt" id="top-amount"></span></li>
+    </ul>
   </section>
   <script src="/static/js/overlay.js"></script>
 </body>

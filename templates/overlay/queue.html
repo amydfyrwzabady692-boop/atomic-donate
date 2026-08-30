@@ -7,12 +7,10 @@
   <link rel="stylesheet" href="/static/css/overlay.css">
 </head>
 <body class="overlay-body" data-kind="queue" data-key="{{ overlay_key }}" data-style="{{ site.alert_style }}">
-  <section id="queue" class="top-box" style="--widget-bg:{{ site.list_bg }};--widget-text:{{ site.list_text }};--fill:{{ site.goal_fill }}">
-    <p class="kicker">نوبت حمایت</p>
-    <p id="q-emoji" class="alert-emoji"></p>
-    <p id="q-name"></p>
-    <p id="q-amount" class="alert-amount"></p>
-    <p id="q-msg" class="alert-msg"></p>
+  <section class="list-box style-pills">
+    <ul>
+      <li id="q-row" class="tier-spark"><span class="who" id="q-name">—</span><span class="amt" id="q-amount">0</span></li>
+    </ul>
   </section>
   <script src="/static/js/overlay.js"></script>
 </body>

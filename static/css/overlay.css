@@ -113,6 +113,18 @@ html, body {
   box-shadow: 0 16px 40px #0008, inset 0 1px 0 #ffffff12;
   backdrop-filter: blur(16px);
 }
+.list-box.style-cards,
+.list-box.style-pills {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+  padding: 8px;
+  width: 440px;
+  min-height: 0;
+}
+.list-box.style-cards h2,
+.list-box.style-pills h2 { display: none; }
 .list-box h2, .goal-title, .kicker {
   margin: 0 0 12px;
   font-size: var(--widget-font, 15px);
@@ -132,26 +144,60 @@ html, body {
   font-size: 13px;
 }
 .list-box li {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto;
   align-items: center;
-  gap: 12px;
-  padding: 10px 12px;
-  margin-bottom: 8px;
-  background: #ffffff0c;
-  border: 1px solid #ffffff10;
-  border-radius: 14px;
-  color: var(--widget-text, #f4f1ea);
-  font-weight: 700;
-}
-.list-box .who { display: flex; align-items: center; gap: 8px; min-width: 0; }
-.list-box .emo { font-style: normal; font-size: 18px; }
-.list-box .amt {
-  color: #c4b5fd;
+  gap: 0;
+  min-height: 48px;
+  padding: 0;
+  margin-bottom: 10px;
+  border-radius: 999px;
+  border: 1px solid #ffffff22;
+  color: #fff;
   font-weight: 800;
-  white-space: nowrap;
+  text-shadow: 0 1px 3px #0009;
+  overflow: hidden;
+  position: relative;
+  background: linear-gradient(135deg, #6b7280, #374151);
+}
+.list-box li::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(-32deg, #ffffff14 0 10px, transparent 10px 20px);
+  pointer-events: none;
+}
+.list-box .who,
+.list-box .amt {
+  position: relative;
+  z-index: 1;
+  color: #fff;
   font-variant-numeric: tabular-nums;
 }
+.list-box .who {
+  padding: 11px 18px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 15px;
+}
+.list-box .emo { font-style: normal; margin-left: 6px; }
+.list-box .amt {
+  padding: 11px 20px;
+  border-right: 1px solid #ffffff55;
+  min-width: 108px;
+  text-align: center;
+  white-space: nowrap;
+}
+.list-box li.tier-core { background: linear-gradient(135deg, #6b7280, #1f2937); }
+.list-box li.tier-spark { background: linear-gradient(135deg, #8b5cf6, #4c1d95); }
+.list-box li.tier-nova { background: linear-gradient(135deg, #f59e0b, #7c3aed); }
+.list-box li.tier-atomic { background: linear-gradient(135deg, #fbbf24, #a855f7 42%, #3b0764); }
+.list-box.style-stack {
+  background: var(--widget-bg, #121218ee);
+  border: 1px solid #ffffff16;
+}
+.list-box.style-stack h2 { display: block; }
 .list-box.style-stack li {
   background: transparent;
   border: 0;
@@ -159,7 +205,11 @@ html, body {
   border-radius: 0;
   margin: 0;
   padding: 9px 0;
+  grid-template-columns: 1fr auto;
+  text-shadow: none;
 }
+.list-box.style-stack li::before { display: none; }
+.list-box.style-stack .amt { border: 0; color: #c4b5fd; min-width: 0; }
 .list-box.style-ticker {
   width: min(760px, 94vw);
   overflow: hidden;
@@ -167,8 +217,6 @@ html, body {
 }
 .list-box.style-ticker ul { display: flex; gap: 18px; animation: slide 18s linear infinite; }
 .list-box.style-ticker li { min-width: max-content; margin: 0; }
-.list-box.style-pills li { border-radius: 999px; background: #7c4dff22; border-color: #a78bfa44; }
-.list-box.style-cards li { box-shadow: 0 8px 18px #0005; }
 @keyframes slide { from { transform: translateX(0); } to { transform: translateX(40%); } }
 
 .goal-box {
@@ -234,4 +282,83 @@ html, body {
   letter-spacing: .04em;
   color: var(--fill, #a78bfa);
   font-variant-numeric: tabular-nums;
+}
+
+.donathon {
+  --sand: 35%;
+  width: 220px;
+  margin: 18px;
+  padding: 22px 14px 40px;
+  text-align: center;
+  color: #fff;
+  position: relative;
+  background: linear-gradient(180deg, #7c3aed, #3b0764);
+  border: 6px solid #111;
+  border-radius: 34px;
+  box-shadow: 0 18px 40px #0008, inset 0 1px 0 #ffffff33;
+}
+.donathon .digits {
+  margin: 0 0 12px;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 2px 0 #0006;
+}
+.hourglass {
+  width: 78px;
+  height: 118px;
+  margin: 0 auto;
+  position: relative;
+}
+.hourglass .frame {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(#111, #111) top / 100% 8px no-repeat,
+    linear-gradient(#111, #111) bottom / 100% 8px no-repeat;
+}
+.hourglass .bulb {
+  position: absolute;
+  left: 50%;
+  width: 64px;
+  height: 48px;
+  transform: translateX(-50%);
+  clip-path: polygon(8% 0, 92% 0, 50% 100%);
+  background: #12061f;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 2px #0006;
+}
+.hourglass .bulb.top { top: 10px; }
+.hourglass .bulb.bot {
+  bottom: 10px;
+  clip-path: polygon(50% 0, 92% 100%, 8% 100%);
+  background: #1e1b4b;
+}
+.hourglass .bulb i {
+  display: block;
+  width: 100%;
+  background: linear-gradient(180deg, #fde68a, #f59e0b);
+}
+.hourglass .bulb.top i {
+  height: calc(100% - var(--sand));
+  margin-top: auto;
+  position: absolute;
+  bottom: 0;
+}
+.hourglass .bulb.bot i { height: var(--sand); position: absolute; bottom: 0; }
+.donathon .badge {
+  position: absolute;
+  left: 50%;
+  bottom: -14px;
+  transform: translateX(-50%);
+  background: #111;
+  color: #fde68a;
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: .04em;
+  white-space: nowrap;
+  box-shadow: 0 8px 18px #0007;
 }
