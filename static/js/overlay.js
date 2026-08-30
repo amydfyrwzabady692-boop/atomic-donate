@@ -42,34 +42,46 @@ function applyConfig(data) {
   if (data.goal && kind === "goal") renderGoal(data.goal);
 }
 
+function paint(el, name, value) {
+  if (el && value) el.style.setProperty(name, value);
+}
+
+function darkIfLight(value, dark) {
+  const v = String(value || "").toLowerCase();
+  if (!v || v === "#ffffff" || v === "#fff" || v === "#fffffff2" || v === "#fffffff0") return dark;
+  if (v === "#2e1065" || v === "#3b0764" || v === "#1e1b4b") return dark;
+  if (v === "#e9e1ff") return "#2a2438";
+  return value;
+}
+
 function applyWidgetTheme() {
   const g = cfg.goal || {};
   const goal = document.getElementById("goal");
   if (goal) {
-    goal.style.setProperty("--fill", g.fill || "#7c4dff");
-    goal.style.setProperty("--track", g.track || "#e9e1ff");
-    goal.style.setProperty("--widget-text", g.text || "#3b0764");
-    goal.style.setProperty("--widget-bg", g.bg || "#ffffff");
-    goal.style.setProperty("--widget-radius", `${g.radius ?? 16}px`);
-    goal.style.setProperty("--widget-font", `${g.font_size ?? 18}px`);
-    goal.style.setProperty("--bar-h", `${g.bar_height ?? 22}px`);
+    paint(goal, "--fill", g.fill || "#a78bfa");
+    paint(goal, "--track", darkIfLight(g.track, "#2a2438"));
+    paint(goal, "--widget-text", darkIfLight(g.text, "#f4f1ea"));
+    paint(goal, "--widget-bg", darkIfLight(g.bg, "#121218"));
+    paint(goal, "--widget-radius", `${g.radius ?? 20}px`);
+    paint(goal, "--widget-font", `${g.font_size ?? 18}px`);
+    paint(goal, "--bar-h", `${g.bar_height ?? 14}px`);
     goal.style.display = g.active === false ? "none" : "";
   }
   const list = document.getElementById("list");
   if (list) {
-    list.style.setProperty("--widget-bg", cfg.list_bg || "#ffffff");
-    list.style.setProperty("--widget-text", cfg.list_text || "#2e1065");
+    paint(list, "--widget-bg", darkIfLight(cfg.list_bg, "#121218"));
+    paint(list, "--widget-text", darkIfLight(cfg.list_text, "#f4f1ea"));
   }
   const tops = document.querySelectorAll(".top-box, .timer-box");
   tops.forEach((el) => {
-    el.style.setProperty("--widget-bg", cfg.list_bg || g.bg || "#ffffff");
-    el.style.setProperty("--widget-text", cfg.list_text || g.text || "#2e1065");
-    el.style.setProperty("--fill", g.fill || "#7c4dff");
+    paint(el, "--widget-bg", darkIfLight(cfg.list_bg || g.bg, "#121218"));
+    paint(el, "--widget-text", darkIfLight(cfg.list_text || g.text, "#f4f1ea"));
+    paint(el, "--fill", g.fill || "#a78bfa");
   });
   const alert = document.getElementById("alert");
   if (alert) {
-    alert.style.setProperty("--alert-text", cfg.alert_text || "#2e1065");
-    alert.style.setProperty("--name-size", `${cfg.alert_name_size || 22}px`);
+    paint(alert, "--alert-text", darkIfLight(cfg.alert_text, "#f4f1ea"));
+    paint(alert, "--name-size", `${cfg.alert_name_size || 22}px`);
   }
 }
 
@@ -230,7 +242,7 @@ function prependDonor(data) {
 }
 
 function itemHtml(d) {
-  return `<li><span>${escapeHtml(d.emoji || "")} ${escapeHtml(d.name)}</span><span class="amt">${formatToman(d.amount)} ت</span></li>`;
+  return `<li><span class="who"><i class="emo">${escapeHtml(d.emoji || "")}</i> ${escapeHtml(d.name)}</span><span class="amt">${formatToman(d.amount)} ت</span></li>`;
 }
 
 function renderGoal(goal) {

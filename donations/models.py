@@ -14,7 +14,7 @@ class SiteSettings(models.Model):
     class AlertStyle(models.TextChoices):
         CLASSIC = "classic", "کلاسیک"
         NEON = "neon", "نئون"
-        GLASS = "glass", "شیشه‌ای ریمیت"
+        GLASS = "glass", "شیشه‌ای تیره"
         BANNER = "banner", "بنر پایین"
         COMIC = "comic", "حباب پیام"
 
@@ -55,11 +55,11 @@ class SiteSettings(models.Model):
     goal_active = models.BooleanField("هدف فعال", default=True)
     goal_show_title = models.BooleanField("نمایش عنوان هدف", default=True)
     goal_show_details = models.BooleanField("نمایش جزئیات هدف", default=True)
-    goal_fill = models.CharField("رنگ پرشدگی", max_length=9, default="#7c4dff")
-    goal_track = models.CharField("رنگ پس‌زمینه نوار", max_length=9, default="#e9e1ff")
-    goal_text = models.CharField("رنگ نوشته هدف", max_length=9, default="#3b0764")
-    goal_bg = models.CharField("رنگ پشت ویجت", max_length=9, default="#ffffff")
-    goal_radius = models.PositiveSmallIntegerField("گردی گوشه", default=16, validators=[MinValueValidator(0), MaxValueValidator(40)])
+    goal_fill = models.CharField("رنگ پرشدگی", max_length=9, default="#a78bfa")
+    goal_track = models.CharField("رنگ پس‌زمینه نوار", max_length=9, default="#2a2438")
+    goal_text = models.CharField("رنگ نوشته هدف", max_length=9, default="#f4f1ea")
+    goal_bg = models.CharField("رنگ پشت ویجت", max_length=9, default="#121218")
+    goal_radius = models.PositiveSmallIntegerField("گردی گوشه", default=20, validators=[MinValueValidator(0), MaxValueValidator(40)])
     goal_font_size = models.PositiveSmallIntegerField("اندازه نوشته", default=18, validators=[MinValueValidator(10), MaxValueValidator(40)])
     goal_bar_height = models.PositiveSmallIntegerField("ارتفاع نوار", default=22, validators=[MinValueValidator(8), MaxValueValidator(48)])
     goal_title_tpl = models.CharField("قالب عنوان", max_length=80, default="هدف: <NAME>")
@@ -67,8 +67,8 @@ class SiteSettings(models.Model):
 
     alert_text = models.CharField("رنگ متن آلارم", max_length=9, default="#ffffff")
     alert_name_size = models.PositiveSmallIntegerField("اندازه نام آلارم", default=22, validators=[MinValueValidator(12), MaxValueValidator(48)])
-    list_bg = models.CharField("رنگ پشت لیست", max_length=9, default="#ffffff")
-    list_text = models.CharField("رنگ متن لیست", max_length=9, default="#2e1065")
+    list_bg = models.CharField("رنگ پشت لیست", max_length=9, default="#121218")
+    list_text = models.CharField("رنگ متن لیست", max_length=9, default="#f4f1ea")
     min_amount_toman = models.PositiveIntegerField("حداقل دونیت (تومان)", default=10_000)
     max_amount_toman = models.PositiveIntegerField("حداکثر دونیت (تومان)", default=100_000_000)
 
