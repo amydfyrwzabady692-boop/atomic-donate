@@ -1,3 +1,4 @@
+from unittest import IsolatedAsyncioTestCase
 from django.test import Client, TestCase
 
 from donations.engine import list_tier, match_condition
@@ -152,4 +153,61 @@ class OverlayTests(TestCase):
                 self.assertEqual(response.status_code, 200, path)
             snap = client.get("/overlay/snapshot/?key=obs-secret")
             self.assertEqual(snap.status_code, 200)
-            self.assertEqual(snap.json().get("type"), "snapshot")
+            body = snap.json()
+            self.assertEqual(body.get("type"), "snapshot")
+            self.assertIn("gifs", body)
+            self.assertIsInstance(body["gifs"], list)
+            self.assertIn("overlay.js?v=queue2", client.get("/overlay/alert/?key=obs-secret").content.decode())
+            self.assertIn("overlay.js?v=queue2", client.get("/overlay/gif/?key=obs-secret").content.decode())
+
+
+class RevealHandshakeTests(IsolatedAsyncioTestCase):
+    async def asyncSetUp(self):
+        from donations import reveal
+
+        reveal.presence.clear()
+        reveal._pending.clear()
+
+    async def asyncTearDown(self):
+        from donations import reveal
+
+        for state in list(reveal._pending.values()):
+            task = state.get("task")
+            if task:
+                task.cancel()
+        reveal._pending.clear()
+        reveal.presence.clear()
+
+    async def test_both_ready_reveals_once(self):
+        from unittest.mock import AsyncMock, patch
+
+        from donations import reveal
+
+        await reveal.add_role("alert")
+        await reveal.add_role("gif")
+        with patch.object(reveal, "_broadcast_reveal", new_callable=AsyncMock) as send:
+            await reveal.mark_ready(7, "alert")
+            send.assert_not_called()
+            await reveal.mark_ready(7, "gif")
+            send.assert_awaited_once_with(7)
+
+    async def test_only_connected_overlay_reveals(self):
+        from unittest.mock import AsyncMock, patch
+
+        from donations import reveal
+
+        await reveal.add_role("alert")
+        with patch.object(reveal, "_broadcast_reveal", new_callable=AsyncMock) as send:
+            await reveal.mark_ready(3, "alert")
+            send.assert_awaited_once_with(3)
+
+    async def test_hello_after_ready_flushes(self):
+        from unittest.mock import AsyncMock, patch
+
+        from donations import reveal
+
+        with patch.object(reveal, "_broadcast_reveal", new_callable=AsyncMock) as send:
+            await reveal.mark_ready(9, "alert")
+            send.assert_not_called()
+            await reveal.add_role("alert")
+            send.assert_awaited_once_with(9)

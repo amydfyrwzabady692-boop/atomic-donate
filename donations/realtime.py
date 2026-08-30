@@ -2,16 +2,33 @@ from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 
 from .engine import biggest_donor, match_condition, paid_qs, serialize_donation, totals
-from .models import Donation, SiteSettings
+from .models import AlertCondition, Donation, SiteSettings
 
 
 def _media(file_field) -> str:
     return file_field.url if file_field else ""
 
 
+def _gif_urls(site: SiteSettings) -> list[str]:
+    urls = []
+    if site.alert_gif:
+        urls.append(_media(site.alert_gif))
+    for cond in AlertCondition.objects.all():
+        if cond.gif:
+            urls.append(_media(cond.gif))
+    seen = set()
+    unique = []
+    for url in urls:
+        if url and url not in seen:
+            seen.add(url)
+            unique.append(url)
+    return unique
+
+
 def overlay_config(site: SiteSettings) -> dict:
     return {
         "gif": _media(site.alert_gif),
+        "gifs": _gif_urls(site),
         "sound": _media(site.alert_sound),
         "sound_enabled": site.sound_enabled,
         "duration": site.alert_seconds,

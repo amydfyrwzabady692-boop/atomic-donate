@@ -19,7 +19,13 @@ let playing = false;
 let playGen = 0;
 let hideTimer = 0;
 let lastId = null;
+const seenIds = new Set();
 const audio = new Audio();
+let overlaySocket = null;
+let waitingReveal = null;
+let waitingSleep = null;
+const revealedIds = new Set();
+const mediaCache = new Map();
 
 function formatToman(value) {
   return Number(value || 0).toLocaleString("en-US");
@@ -40,6 +46,10 @@ function applyConfig(data) {
   audio.volume = Math.max(0, Math.min(1, cfg.alert_volume || 0));
   applyWidgetTheme();
   if (data.goal && kind === "goal") renderGoal(data.goal);
+  if (kind === "gif" && Array.isArray(cfg.gifs)) {
+    cfg.gifs.forEach((url) => preloadMedia(url));
+  }
+  if (kind === "gif" && cfg.gif) preloadMedia(cfg.gif);
 }
 
 function paint(el, name, value) {
@@ -102,12 +112,17 @@ let wsLive = false;
 function connect() {
   const proto = location.protocol === "https:" ? "wss:" : "ws:";
   const socket = new WebSocket(`${proto}//${location.host}/ws/overlay/?key=${encodeURIComponent(key)}`);
+  overlaySocket = socket;
   socket.addEventListener("open", () => {
     wsLive = true;
+    if (kind === "alert" || kind === "gif") {
+      socket.send(JSON.stringify({ type: "hello", role: kind }));
+    }
   });
   socket.addEventListener("message", (event) => onPayload(JSON.parse(event.data)));
   socket.addEventListener("close", () => {
     wsLive = false;
+    overlaySocket = null;
     setTimeout(connect, 1500);
   });
 }
@@ -127,6 +142,14 @@ let rotate = [];
 let rotateIndex = 0;
 
 function onPayload(data) {
+  if (data.type === "reveal") {
+    const rid = String(data.id || "");
+    if (rid) revealedIds.add(rid);
+    if (waitingReveal && String(waitingReveal.id) === rid) {
+      waitingReveal.finish();
+    }
+    return;
+  }
   if (data.type === "skip") {
     skipAlert();
     return;
@@ -165,8 +188,9 @@ function onPayload(data) {
 function skipAlert() {
   playGen += 1;
   queue = [];
-  playing = false;
   clearTimeout(hideTimer);
+  if (waitingReveal) waitingReveal.finish();
+  if (waitingSleep) waitingSleep.finish();
   const box = document.getElementById("alert");
   if (box) box.className = `alert style-${cfg.alert_style || "glass"}`;
   const media = document.getElementById("media");
@@ -319,13 +343,173 @@ function renderTop(top) {
   if (row) row.className = `${amountTier(top.amount)}${label.length > 22 ? " has-clip" : ""}`;
 }
 
+function rememberId(id) {
+  if (id == null || id === "") return false;
+  const sid = String(id);
+  if (seenIds.has(sid)) return true;
+  seenIds.add(sid);
+  if (seenIds.size > 250) {
+    const oldest = seenIds.values().next().value;
+    seenIds.delete(oldest);
+  }
+  return false;
+}
+
 function enqueue(data) {
+  if (!data) return;
+  if (rememberId(data.id)) return;
   queue.push(data);
-  if (!playing) playNext();
+  const url = data.gif || cfg.gif;
+  if (url && kind === "gif") preloadMedia(url);
+  pump();
+}
+
+function pump() {
+  if (playing) return;
+  playing = true;
+  runLoop();
+}
+
+function waitMs(ms) {
+  return new Promise((resolve) => {
+    const wrapped = () => {
+      clearTimeout(hideTimer);
+      if (waitingSleep && waitingSleep.finish === wrapped) waitingSleep = null;
+      resolve();
+    };
+    hideTimer = setTimeout(wrapped, Math.max(0, ms));
+    waitingSleep = { finish: wrapped };
+  });
+}
+
+function aborted(gen) {
+  return gen !== playGen;
 }
 
 function isVideoUrl(url) {
   return /\.(webm|mp4|ogg)(\?|$)/i.test(url || "");
+}
+
+function mediaKey(url) {
+  try {
+    return new URL(url, location.origin).href.split("?")[0];
+  } catch (err) {
+    return url;
+  }
+}
+
+function warmupVideo(src) {
+  return new Promise((resolve) => {
+    const v = document.createElement("video");
+    let done = false;
+    v.preload = "auto";
+    v.muted = true;
+    v.playsInline = true;
+    v.src = src;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      v.oncanplaythrough = null;
+      v.onerror = null;
+      v.pause();
+      resolve();
+    };
+    const timer = setTimeout(finish, 20000);
+    v.oncanplaythrough = finish;
+    v.onerror = finish;
+    v.load();
+  });
+}
+
+function warmupImage(src) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      img.onload = null;
+      img.onerror = null;
+      resolve();
+    };
+    const timer = setTimeout(finish, 20000);
+    img.onload = finish;
+    img.onerror = finish;
+    img.src = src;
+  });
+}
+
+function looksLikeVideo(url, blob) {
+  if (blob && blob.type) {
+    if (blob.type.startsWith("video/")) return true;
+    if (blob.type.startsWith("image/")) return false;
+  }
+  return isVideoUrl(url) && !/\.(gif|png|webp|jpe?g)(\?|$)/i.test(url || "");
+}
+
+async function preloadMedia(url) {
+  if (!url) return { src: "", video: false };
+  if (url.startsWith("blob:")) return { src: url, video: isVideoUrl(url) };
+  const key = mediaKey(url);
+  if (mediaCache.has(key)) return mediaCache.get(key);
+  const pending = (async () => {
+    try {
+      const ctrl = new AbortController();
+      const abortTimer = setTimeout(() => ctrl.abort(), 45000);
+      const res = await fetch(url, { cache: "default", credentials: "same-origin", signal: ctrl.signal });
+      clearTimeout(abortTimer);
+      if (!res.ok) throw new Error("fetch");
+      const blob = await res.blob();
+      if (!blob || blob.size < 32) throw new Error("empty");
+      const obj = URL.createObjectURL(blob);
+      const video = looksLikeVideo(url, blob);
+      if (video) await warmupVideo(obj);
+      else await warmupImage(obj);
+      return { src: obj, video };
+    } catch (err) {
+      return { src: url, video: looksLikeVideo(url) };
+    }
+  })();
+  mediaCache.set(key, pending);
+  const ready = await pending;
+  mediaCache.set(key, ready);
+  return ready;
+}
+
+function notifyReady(id) {
+  if (!id || !overlaySocket || overlaySocket.readyState !== 1) return;
+  overlaySocket.send(JSON.stringify({ type: "media_ready", id, role: kind }));
+}
+
+function waitForReveal(id) {
+  if (!id) return Promise.resolve();
+  const sid = String(id);
+  if (revealedIds.has(sid)) {
+    revealedIds.delete(sid);
+    return Promise.resolve();
+  }
+  if (!overlaySocket || overlaySocket.readyState !== 1) {
+    notifyReady(id);
+    return Promise.resolve();
+  }
+  return new Promise((resolve) => {
+    const wrapped = () => {
+      clearTimeout(timer);
+      if (waitingReveal && waitingReveal.finish === wrapped) waitingReveal = null;
+      revealedIds.delete(sid);
+      resolve();
+    };
+    const timer = setTimeout(wrapped, 45000);
+    waitingReveal = { id: sid, finish: wrapped };
+    if (revealedIds.has(sid)) {
+      wrapped();
+      return;
+    }
+    notifyReady(id);
+    if (revealedIds.has(sid)) wrapped();
+  });
 }
 
 function hideAlertMedia() {
@@ -343,33 +527,43 @@ function hideAlertMedia() {
   }
 }
 
-function showAlertMedia(url) {
+function waitClipReady(vid, src) {
+  return new Promise((resolve) => {
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      vid.oncanplaythrough = null;
+      vid.onerror = null;
+      resolve();
+    };
+    const timer = setTimeout(finish, 8000);
+    vid.oncanplaythrough = finish;
+    vid.onerror = finish;
+    vid.muted = false;
+    vid.loop = false;
+    vid.preload = "auto";
+    vid.src = src;
+    vid.style.display = "block";
+    vid.load();
+  });
+}
+
+async function armMedia(src, video) {
   if (kind !== "gif") return;
   const img = document.getElementById("gif");
   const vid = document.getElementById("clip");
-  if (!url) {
+  if (!src) {
     hideAlertMedia();
     return;
   }
-  const stamped = `${url}${url.includes("?") ? "&" : "?"}t=${Date.now()}`;
-  if (isVideoUrl(url)) {
+  if (video) {
     if (img) {
       img.removeAttribute("src");
       img.style.display = "none";
     }
-    if (vid) {
-      vid.muted = false;
-      vid.loop = false;
-      vid.src = stamped;
-      vid.style.display = "block";
-      const start = () => vid.play().catch(() => {
-        vid.muted = true;
-        vid.play().then(() => {
-          vid.muted = false;
-        }).catch(() => {});
-      });
-      start();
-    }
+    if (vid) await waitClipReady(vid, src);
     return;
   }
   if (vid) {
@@ -378,43 +572,61 @@ function showAlertMedia(url) {
     vid.style.display = "none";
   }
   if (img) {
-    img.src = stamped;
+    img.src = src;
     img.style.display = "block";
+    await warmupImage(src);
   }
 }
 
-function playNext() {
-  const data = queue.shift();
-  if (!data) {
-    playing = false;
-    return;
+async function startArmedMedia() {
+  if (kind !== "gif") return;
+  const vid = document.getElementById("clip");
+  if (!vid || vid.style.display === "none" || !vid.src) return;
+  await vid.play().catch(() => {
+    vid.muted = true;
+    return vid.play().then(() => {
+      vid.muted = false;
+    }).catch(() => {});
+  });
+}
+
+function clearRevealNoise(currentId) {
+  const keep = currentId != null ? String(currentId) : "";
+  for (const id of [...revealedIds]) {
+    if (id !== keep) revealedIds.delete(id);
   }
-  playing = true;
-  const gen = playGen;
+}
+
+async function playOne(data, gen) {
   const ms = Math.max(3, Number(data.duration || cfg.duration || 8)) * 1000;
+  const url = data.gif || cfg.gif || "";
+  clearRevealNoise(data.id);
+  let ready = { src: "", video: looksLikeVideo(url) };
+  if (url && kind === "gif") {
+    ready = await preloadMedia(url);
+    if (aborted(gen)) return;
+    await armMedia(ready.src || url, ready.video);
+  }
+  if (aborted(gen)) return;
+  await waitForReveal(data.id);
+  if (aborted(gen)) return;
 
   if (kind === "gif") {
-    const url = data.gif || cfg.gif;
-    showAlertMedia(url);
+    const src = ready.src || url;
+    await startArmedMedia();
+    if (aborted(gen)) return;
     const media = document.getElementById("media");
-    if (media) media.classList.toggle("show", Boolean(url));
-    hideTimer = setTimeout(() => {
-      if (gen !== playGen) return;
-      if (media) media.classList.remove("show");
-      hideAlertMedia();
-      setTimeout(() => {
-        if (gen !== playGen) return;
-        playNext();
-      }, 250);
-    }, ms);
+    if (media) media.classList.toggle("show", Boolean(src));
+    await waitMs(ms);
+    if (aborted(gen)) return;
+    if (media) media.classList.remove("show");
+    hideAlertMedia();
+    await waitMs(280);
     return;
   }
 
   const box = document.getElementById("alert");
-  if (!box) {
-    playing = false;
-    return;
-  }
+  if (!box) return;
   document.getElementById("who").textContent = data.name;
   document.getElementById("amount").textContent = `مبلغ ${formatToman(data.amount)} تومان حمایت کرد`;
   document.getElementById("msg").textContent = data.message || "";
@@ -424,15 +636,31 @@ function playNext() {
   box.className = `alert style-${style} show`;
   playSound(data);
   if (data.tts ?? cfg.tts) speak(`${data.name} ${formatToman(data.amount)} تومان. ${data.message || ""}`);
-  hideTimer = setTimeout(() => {
-    if (gen !== playGen) return;
-    box.classList.remove("show");
+  await waitMs(ms);
+  if (aborted(gen)) return;
+  box.classList.remove("show");
+  try {
     speechSynthesis.cancel();
-    setTimeout(() => {
-      if (gen !== playGen) return;
-      playNext();
-    }, 350);
-  }, ms);
+  } catch (err) {
+    /* ignore */
+  }
+  audio.pause();
+  await waitMs(320);
+}
+
+async function runLoop() {
+  try {
+    while (queue.length) {
+      const gen = playGen;
+      const data = queue.shift();
+      if (!data) break;
+      await playOne(data, gen);
+      if (aborted(gen)) break;
+    }
+  } finally {
+    playing = false;
+    if (queue.length) pump();
+  }
 }
 
 function playSound(data) {
