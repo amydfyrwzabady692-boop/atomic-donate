@@ -346,19 +346,22 @@ th, td { text-align: right; padding: 12px 8px; border-bottom: 1px solid var(--li
 .goal-live-preview {
   background: repeating-conic-gradient(#1a1a22 0% 25%, #0c0c10 0% 50%) 50% / 18px 18px;
   border-radius: 16px;
-  padding: 22px 18px;
+  padding: 22px 18px 28px;
   border: 1px solid var(--line);
 }
 .goal-live-preview .bar {
-  height: 18px;
-  background: var(--track, #2a2438);
+  height: 36px;
+  background:
+    repeating-linear-gradient(-32deg, #ffffff10 0 8px, transparent 8px 16px),
+    #12081f;
   border-radius: 999px;
   overflow: hidden;
+  border: 3px solid #111;
 }
 .goal-live-preview .bar i {
   display: block;
   height: 100%;
-  background: linear-gradient(90deg, var(--fill, #a78bfa), #fde68a);
+  background: linear-gradient(90deg, #7c3aed, #a855f7, #fbbf24);
   border-radius: 999px;
 }
 .obs-guide h2 { margin: 0 0 10px; }

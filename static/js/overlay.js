@@ -259,6 +259,7 @@ function renderGoal(goal) {
   const meta = document.getElementById("goal-meta");
   const ring = document.getElementById("goal-ring");
   const pct = document.getElementById("goal-pct");
+  const ringPct = document.getElementById("goal-ring-pct");
   const currentEl = document.getElementById("goal-current");
   const targetEl = document.getElementById("goal-target");
   const titleText = String(goal.title_tpl || "هدف: <NAME>").replace("<NAME>", goal.title || "هدف");
@@ -269,17 +270,24 @@ function renderGoal(goal) {
     title.textContent = titleText;
     title.style.display = goal.show_title === false ? "none" : "";
   }
-  if (fill) fill.style.width = `${goal.percent || 0}%`;
+  if (fill) {
+    fill.style.width = `${goal.percent || 0}%`;
+    fill.style.minWidth = (goal.percent || 0) > 0 ? "22px" : "0";
+  }
   if (ring) ring.style.setProperty("--p", goal.percent || 0);
+  const box = document.getElementById("goal");
+  if (box) {
+    box.style.setProperty("--p", goal.percent || 0);
+    box.style.display = goal.active === false ? "none" : "";
+  }
   if (pct) pct.textContent = `${goal.percent || 0}٪`;
+  if (ringPct) ringPct.textContent = `${goal.percent || 0}٪`;
   if (meta) {
     meta.textContent = details;
     meta.style.display = goal.show_details === false ? "none" : "";
   }
   if (currentEl) currentEl.textContent = formatToman(goal.current);
   if (targetEl) targetEl.textContent = formatToman(goal.target);
-  const box = document.getElementById("goal");
-  if (box) box.style.display = goal.active === false ? "none" : "";
 }
 
 function renderTop(top) {
