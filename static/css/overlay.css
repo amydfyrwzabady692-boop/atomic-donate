@@ -229,51 +229,53 @@ html, body {
 .list-box ul { list-style: none; margin: 0; padding: 0; }
 .list-box ul:empty::after {
   content: "هنوز حمایتی نیست.";
-  color: #a8a29a;
+  color: #94a3b8;
   font-size: 13px;
 }
 .list-box li {
-  display: grid;
-  grid-template-columns: 1fr auto;
+  display: flex;
+  flex-direction: row;
+  direction: ltr;
   align-items: center;
-  gap: 0;
-  min-height: 54px;
-  padding: 0;
-  margin-bottom: 13px;
+  height: 52px;
+  min-height: 52px;
+  max-height: 52px;
+  padding: 0 6px 0 4px;
+  margin-bottom: 12px;
   border-radius: 999px;
   border: 1px solid #e5e7eb88;
   outline: 3px solid #111;
   color: #fff;
   font-weight: 800;
-  text-shadow: 0 2px 6px #000a;
+  text-shadow: 0 2px 4px #000, 0 0 2px #000;
   overflow: hidden;
   position: relative;
-  background: linear-gradient(135deg, #4b5563, #111827);
-  box-shadow: 0 12px 24px #0008, inset 0 1px 0 #ffffff55, 0 0 14px #7dd3fc22;
+  background: linear-gradient(90deg, #64748b, #334155);
+  box-shadow: 0 10px 22px #0007, inset 0 1px 0 #ffffff44;
 }
 .list-box li::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: repeating-linear-gradient(-32deg, #ffffff18 0 9px, transparent 9px 18px);
+  background: repeating-linear-gradient(-32deg, #00000022 0 8px, transparent 8px 16px);
   pointer-events: none;
 }
 .list-box li::after {
   content: "";
   position: absolute;
   top: 0;
-  right: -40%;
+  left: -40%;
   width: 40%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, #ffffff55, transparent);
+  background: linear-gradient(90deg, transparent, #ffffff44, transparent);
   animation: gleam 3.2s ease-in-out infinite;
   pointer-events: none;
 }
 @keyframes gleam {
   0% { transform: translateX(0); opacity: 0; }
   18% { opacity: .7; }
-  42% { transform: translateX(-280%); opacity: 0; }
-  100% { transform: translateX(-280%); opacity: 0; }
+  42% { transform: translateX(280%); opacity: 0; }
+  100% { transform: translateX(280%); opacity: 0; }
 }
 .list-box .who,
 .list-box .amt {
@@ -282,39 +284,34 @@ html, body {
   color: #fff;
   font-variant-numeric: tabular-nums;
 }
+.list-box .amt {
+  flex: 0 0 auto;
+  padding: 0 16px 0 18px;
+  white-space: nowrap;
+  font-size: 16px;
+  letter-spacing: .02em;
+}
 .list-box .who {
-  padding: 11px 18px;
+  flex: 1 1 0;
+  min-width: 0;
+  margin: 7px 8px 7px 4px;
+  padding: 7px 14px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 15px;
+  direction: rtl;
+  text-align: right;
+}
+.list-box li.has-clip .who {
+  background: #0c4a6ecc;
+  border-radius: 12px;
 }
 .list-box .emo { font-style: normal; margin-left: 6px; }
-.list-box .amt {
-  padding: 11px 18px 11px 14px;
-  border-right: 1px solid #ffffff55;
-  min-width: 118px;
-  text-align: center;
-  white-space: nowrap;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
-.list-box li.tier-core { background: linear-gradient(135deg, #4b5563, #111827); }
-.list-box li.tier-spark {
-  background: linear-gradient(135deg, #3f4654, #111827);
-  box-shadow: 0 12px 24px #0008, inset 0 1px 0 #ffffff44, 0 0 16px #3b82f655;
-}
-.list-box li.tier-nova {
-  background: linear-gradient(135deg, #52525b, #171717);
-  box-shadow: 0 12px 24px #0008, inset 0 1px 0 #ffffff55, 0 0 16px #7dd3fc55;
-}
-.list-box li.tier-atomic {
-  background: linear-gradient(120deg, #6b7280, #1a1a1e 52%, #111);
-  box-shadow: 0 12px 28px #0008, 0 0 18px #bae6fd55;
-  border-color: #7dd3fc88;
-}
+.list-box li.tier-core { background: linear-gradient(90deg, #64748b, #334155); }
+.list-box li.tier-spark { background: linear-gradient(90deg, #0ea5e9, #0369a1); }
+.list-box li.tier-nova { background: linear-gradient(90deg, #38bdf8, #075985); }
+.list-box li.tier-atomic { background: linear-gradient(90deg, #7dd3fc, #0284c7); }
 .list-box.style-stack {
   background: var(--widget-bg, #121218ee);
   border: 1px solid #ffffff16;
@@ -323,22 +320,30 @@ html, body {
 .list-box.style-stack li {
   background: transparent;
   border: 0;
+  outline: 0;
   border-bottom: 1px solid #ffffff12;
   border-radius: 0;
   margin: 0;
   padding: 9px 0;
-  grid-template-columns: 1fr auto;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  direction: rtl;
   text-shadow: none;
+  box-shadow: none;
 }
-.list-box.style-stack li::before { display: none; }
-.list-box.style-stack .amt { border: 0; color: #bae6fd; min-width: 0; }
+.list-box.style-stack li::before,
+.list-box.style-stack li::after { display: none; }
+.list-box.style-stack .who { margin: 0; padding: 0; background: none; }
+.list-box.style-stack .amt { color: #bae6fd; padding: 0 12px 0 0; }
 .list-box.style-ticker {
   width: min(760px, 94vw);
   overflow: hidden;
   padding: 10px 16px;
 }
 .list-box.style-ticker ul { display: flex; gap: 18px; animation: slide 18s linear infinite; }
-.list-box.style-ticker li { min-width: max-content; margin: 0; }
+.list-box.style-ticker li { min-width: max-content; margin: 0; height: auto; max-height: none; }
+.list-box.style-ticker .who { overflow: visible; text-overflow: unset; flex: none; }
 @keyframes slide { from { transform: translateX(0); } to { transform: translateX(40%); } }
 
 .goal-box {

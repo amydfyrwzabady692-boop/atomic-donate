@@ -229,9 +229,12 @@ function showQueueItem(item) {
   const li = document.getElementById("q-row");
   const name = document.getElementById("q-name");
   const amount = document.getElementById("q-amount");
-  if (name) name.textContent = item.name || "";
+  const label = [item.name, item.message].filter(Boolean).join(" · ");
+  if (name) name.textContent = label || "—";
   if (amount) amount.textContent = formatToman(item.amount);
-  if (li) li.className = amountTier(item.amount);
+  if (li) {
+    li.className = `${amountTier(item.amount)}${label.length > 22 ? " has-clip" : ""}`;
+  }
 }
 
 function renderList(donors) {
@@ -260,8 +263,11 @@ function amountTier(amount) {
 }
 
 function itemHtml(d) {
-  const name = escapeHtml(d.name || "");
-  return `<li class="${amountTier(d.amount)}"><span class="who">${name}</span><span class="amt"><span class="atom xs"><i class="nucleus"></i><i class="path p1"></i></span>${formatToman(d.amount)}</span></li>`;
+  const name = String(d.name || "").trim();
+  const msg = String(d.message || "").trim();
+  const label = msg ? (name ? `${name} · ${msg}` : msg) : name;
+  const clip = label.length > 22 ? " has-clip" : "";
+  return `<li class="${amountTier(d.amount)}${clip}"><span class="amt">${formatToman(d.amount)}</span><span class="who">${escapeHtml(label)}</span></li>`;
 }
 
 function renderGoal(goal) {
@@ -307,11 +313,12 @@ function renderTop(top) {
   const name = document.getElementById("top-name");
   const amount = document.getElementById("top-amount");
   const emoji = document.getElementById("top-emoji");
-  if (name) name.textContent = top.name;
+  const label = String(top.name || "");
+  if (name) name.textContent = label;
   if (amount) amount.textContent = formatToman(top.amount);
   if (emoji) emoji.textContent = top.emoji || "👑";
   const row = document.getElementById("top-row");
-  if (row) row.className = amountTier(top.amount);
+  if (row) row.className = `${amountTier(top.amount)}${label.length > 22 ? " has-clip" : ""}`;
 }
 
 function enqueue(data) {
