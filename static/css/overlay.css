@@ -106,7 +106,13 @@ body[data-kind="alert"] {
   transition: opacity .4s ease;
 }
 .alert.show { opacity: 1; transform: none; }
-.alert-gif { display: none; }
+.alert video,
+.alert .alert-gif,
+.alert img.alert-gif {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
 
 .media-stage {
   width: 100vw;

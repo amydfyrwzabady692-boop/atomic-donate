@@ -344,6 +344,7 @@ function hideAlertMedia() {
 }
 
 function showAlertMedia(url) {
+  if (kind !== "gif") return;
   const img = document.getElementById("gif");
   const vid = document.getElementById("clip");
   if (!url) {
@@ -358,7 +359,7 @@ function showAlertMedia(url) {
     }
     if (vid) {
       vid.muted = false;
-      vid.loop = true;
+      vid.loop = false;
       vid.src = stamped;
       vid.style.display = "block";
       const start = () => vid.play().catch(() => {
@@ -426,7 +427,6 @@ function playNext() {
   hideTimer = setTimeout(() => {
     if (gen !== playGen) return;
     box.classList.remove("show");
-    hideAlertMedia();
     speechSynthesis.cancel();
     setTimeout(() => {
       if (gen !== playGen) return;

@@ -4,7 +4,7 @@
 {% block content %}
 {% include "panel/_overlay_bar.html" with bar_url=overlay_urls.alert size="۵۲۰×۲۲۰" %}
 
-<p class="muted note">این لینک فقط اسم و مبلغ را نشان می‌دهد. ویدیو/گیف دونیت لینک جدا دارد: <a href="{% url 'panel_conditions' %}">گیف مرحله‌ای</a>. در OBS آلارم را بالا بگذار، گیف را پایین.</p>
+<p class="muted note">آلارم فقط متن است؛ ویدیو ندارد. مدت نمایش را از تایمر گیف دونیت می‌گیرد. ویدیو: <a href="{% url 'panel_conditions' %}">گیف مرحله‌ای</a>.</p>
 
 <section class="grid-2" style="margin-top:16px">
   <form class="card stack" method="post" enctype="multipart/form-data">
@@ -14,22 +14,10 @@
     </label>
     <label>رنگ نوشته <input type="color" name="alert_text" value="{{ site.alert_text }}"></label>
     <label>اندازه نام <input type="number" name="alert_name_size" min="12" max="48" value="{{ site.alert_name_size }}"></label>
-    <label>مدت نمایش: <b id="sec-val">{{ site.alert_seconds }}</b> ثانیه
-      <input type="range" name="alert_seconds" min="2" max="30" value="{{ site.alert_seconds }}" data-output="sec-val">
-    </label>
-    <h2>صدای آلارم (جدا از ویدیو)</h2>
-    <p class="muted">اگر فایلی نگذاری، آلارم بی‌صدا می‌ماند. هر وقت خواستی mp3 بگذار.</p>
-    <label>فایل صدا (mp3 / wav / ogg)
-      <input type="file" name="alert_sound" accept="audio/*">
-    </label>
-    {% if site.alert_sound %}
-      <audio controls src="{{ site.alert_sound.url }}"></audio>
-      <label class="check"><input type="checkbox" name="clear_sound"> حذف صدا</label>
-    {% endif %}
-    <label>صدای آلارم: <b id="vol-val">{{ site.alert_volume }}</b>٪
+    <label>صدای فایل آلارم (اگر در مرحله گیف صدا گذاشته باشی): <b id="vol-val">{{ site.alert_volume }}</b>٪
       <input type="range" name="alert_volume" min="0" max="100" value="{{ site.alert_volume }}" data-output="vol-val" data-live-volume="alert">
     </label>
-    <label class="check"><input type="checkbox" name="sound_enabled" {% if site.sound_enabled %}checked{% endif %}> پخش فایل صدای آلارم وقتی آپلود شده باشد</label>
+    <label class="check"><input type="checkbox" name="sound_enabled" {% if site.sound_enabled %}checked{% endif %}> پخش فایل صدای مرحله گیف روی آلارم متنی</label>
 
     <h2>خواندن مبلغ (الان خاموش)</h2>
     <p class="muted">صدای خواندن اسم و مبلغ به‌صورت پیش‌فرض پخش نمی‌شود. اگر بعداً خواستی، این بخش را روشن کن.</p>

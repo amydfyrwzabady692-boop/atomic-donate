@@ -11,7 +11,7 @@
     <li>این لینک را جدا از آلارم به‌صورت Browser Source بگذار. آلارم لینک خودش را دارد.</li>
     <li>اندازه پیشنهادی گیف <b>۹۶۰×۵۴۰</b> است. در OBS آن را پایین بگذار، آلارم را بالا.</li>
     <li>تیک <b>Control audio via OBS</b> را روشن کن تا صدای خود ویدیو بیاید.</li>
-    <li>فایل GIF / WebM / MP4 را در مرحله‌های پایین آپلود کن. هر مبلغ، ویدیوی همان بازه را پخش می‌کند.</li>
+    <li>مدت ثانیه هر مرحله (و پیش‌فرض) تایمر آلارم هم هست؛ هر دو با هم روی صفحه می‌مانند.</li>
     <li>خود فایل را جدا در OBS نگذار؛ همین لینک گیف دونیت کافی است.</li>
   </ol>
 </section>
@@ -20,7 +20,7 @@
   {% csrf_token %}
   <input type="hidden" name="save_default_gif" value="1">
   <h2>ویدیو / گیف پیش‌فرض</h2>
-  <p class="muted">اگر مبلغی به هیچ مرحله‌ای نخورد، این فایل پخش می‌شود.</p>
+  <p class="muted">اگر مبلغی به هیچ مرحله‌ای نخورد، این فایل پخش می‌شود. تایمر همین‌جا مدت آلارم و گیف را با هم مشخص می‌کند.</p>
   <label>فایل پیش‌فرض <input type="file" name="alert_gif" accept="image/gif,image/webp,image/png,image/jpeg,video/webm,video/mp4"></label>
   {% if site.alert_gif %}
     {% if ".webm" in site.alert_gif.url or ".mp4" in site.alert_gif.url %}
@@ -30,6 +30,12 @@
     {% endif %}
     <label class="check"><input type="checkbox" name="clear_gif"> حذف فایل پیش‌فرض</label>
   {% endif %}
+  <label>مدت ثانیه <input type="number" name="duration" min="2" max="120" value="{{ site.alert_seconds }}"></label>
+  {% if site.alert_sound %}
+    <audio controls src="{{ site.alert_sound.url }}"></audio>
+    <label class="check"><input type="checkbox" name="clear_sound"> حذف صدا</label>
+  {% endif %}
+  <label>صدای این مرحله (اختیاری) <input type="file" name="alert_sound" accept="audio/*"></label>
   <button class="btn" type="submit">ذخیره پیش‌فرض</button>
 </form>
 
@@ -48,7 +54,7 @@
   </div>
   <label>نام مرحله <input name="label" id="tier_label" value="۰ تا ۲۰۰ هزار"></label>
   <div class="row">
-    <label>مدت ثانیه <input type="number" name="duration" value="{{ site.alert_seconds }}"></label>
+    <label>مدت ثانیه <input type="number" name="duration" min="2" max="120" value="{{ site.alert_seconds }}"></label>
     <label>ظاهر
       <select name="style">
         <option value="">همان پیش‌فرض</option>
@@ -57,8 +63,8 @@
     </label>
   </div>
   <label>گیف / ویدیو این مرحله <input type="file" name="gif" accept="image/gif,image/webp,image/png,image/jpeg,video/webm,video/mp4"></label>
-  <p class="muted">ویدیو صدای داخل فایل را پخش می‌کند. فیلد صدا فقط برای آلارم متنی است و لازم نیست.</p>
-  <label>صدای اضافه آلارم متنی (اختیاری) <input type="file" name="sound" accept="audio/*"></label>
+  <p class="muted">ویدیو صدای داخل فایل را پخش می‌کند. فیلد صدا مثل بقیه مرحله‌ها اختیاری است.</p>
+  <label>صدای این مرحله (اختیاری) <input type="file" name="sound" accept="audio/*"></label>
   <button class="btn" type="submit">افزودن مرحله</button>
 </form>
 
@@ -84,7 +90,7 @@
       <div class="row">
         <label>از <input type="number" name="min_toman" value="{{ c.min_toman }}"></label>
         <label>تا (۰=∞) <input type="number" name="max_toman" value="{{ c.max_toman }}"></label>
-        <label>ثانیه <input type="number" name="duration" value="{{ c.duration }}"></label>
+        <label>ثانیه <input type="number" name="duration" min="2" max="120" value="{{ c.duration }}"></label>
       </div>
       <label>نام <input name="label" value="{{ c.label }}"></label>
       {% if c.gif %}

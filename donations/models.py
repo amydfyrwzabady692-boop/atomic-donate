@@ -82,7 +82,7 @@ class SiteSettings(models.Model):
     min_amount_toman = models.PositiveIntegerField("حداقل دونیت (تومان)", default=10_000)
     max_amount_toman = models.PositiveIntegerField("حداکثر دونیت (تومان)", default=100_000_000)
 
-    alert_seconds = models.PositiveIntegerField("مدت آلارم (ثانیه)", default=8, validators=[MinValueValidator(2), MaxValueValidator(30)])
+    alert_seconds = models.PositiveIntegerField("مدت گیف دونیت (ثانیه)", default=8, validators=[MinValueValidator(2), MaxValueValidator(120)])
     alert_volume = models.PositiveSmallIntegerField("صدای دونیت", default=80, validators=[MinValueValidator(0), MaxValueValidator(100)])
     tts_enabled = models.BooleanField("خواندن پیام", default=False)
     tts_volume = models.PositiveSmallIntegerField("صدای خواندن", default=85, validators=[MinValueValidator(0), MaxValueValidator(100)])
@@ -168,7 +168,7 @@ class AlertCondition(models.Model):
     min_toman = models.PositiveIntegerField("از مبلغ")
     max_toman = models.PositiveIntegerField("تا مبلغ (۰ یعنی بی‌نهایت)", default=0)
     label = models.CharField("نام شرط", max_length=40, blank=True)
-    duration = models.PositiveIntegerField("مدت (ثانیه)", default=8)
+    duration = models.PositiveIntegerField("مدت (ثانیه)", default=8, validators=[MinValueValidator(2), MaxValueValidator(120)])
     style = models.CharField("ظاهر", max_length=20, blank=True)
     gif = models.FileField("گیف این بازه", upload_to="alerts/", blank=True)
     sound = models.FileField("صدای این بازه", upload_to="sounds/", blank=True)

@@ -492,7 +492,6 @@ def panel_tools(request):
 def panel_alert(request):
     site = SiteSettings.load()
     if request.method == "POST":
-        site.alert_seconds = _int(request.POST.get("alert_seconds"), site.alert_seconds, 2, 30)
         site.alert_volume = _int(request.POST.get("alert_volume"), site.alert_volume, 0, 100)
         site.tts_volume = _int(request.POST.get("tts_volume"), site.tts_volume, 0, 100)
         site.tts_rate = max(0.5, min(2.0, float(request.POST.get("tts_rate") or site.tts_rate)))
@@ -504,10 +503,6 @@ def panel_alert(request):
         alert_style = request.POST.get("alert_style")
         if alert_style in dict(SiteSettings.AlertStyle.choices):
             site.alert_style = alert_style
-        if request.FILES.get("alert_sound"):
-            site.alert_sound = request.FILES["alert_sound"]
-        if request.POST.get("clear_sound") == "on":
-            site.alert_sound = None
         site.save()
         broadcast_settings(site)
         messages.success(request, "آلارم ذخیره شد و به OBS فرستاده شد.")
@@ -800,19 +795,24 @@ def panel_conditions(request):
     ensure_default_alert_tiers()
     if request.method == "POST":
         if request.POST.get("save_default_gif"):
+            site.alert_seconds = _int(request.POST.get("duration"), site.alert_seconds, 2, 120)
             if request.FILES.get("alert_gif"):
                 site.alert_gif = request.FILES["alert_gif"]
+            if request.FILES.get("alert_sound"):
+                site.alert_sound = request.FILES["alert_sound"]
             if request.POST.get("clear_gif") == "on":
                 site.alert_gif = None
+            if request.POST.get("clear_sound") == "on":
+                site.alert_sound = None
             site.save()
             broadcast_settings(site)
-            messages.success(request, "ویدیوی پیش‌فرض گیف دونیت ذخیره شد.")
+            messages.success(request, "گیف پیش‌فرض، تایمر و صدا ذخیره شد. آلارم هم به اندازه همین تایمر می‌ماند.")
             return redirect("panel_conditions")
         AlertCondition.objects.create(
             min_toman=_int(request.POST.get("min_toman"), 0),
             max_toman=_int(request.POST.get("max_toman"), 0),
             label=(request.POST.get("label") or "")[:40],
-            duration=_int(request.POST.get("duration"), site.alert_seconds, 2, 30),
+            duration=_int(request.POST.get("duration"), site.alert_seconds, 2, 120),
             style=request.POST.get("style") or "",
             gif=request.FILES.get("gif"),
             sound=request.FILES.get("sound"),
@@ -834,7 +834,7 @@ def panel_condition_update(request, pk):
     cond.min_toman = _int(request.POST.get("min_toman"), cond.min_toman)
     cond.max_toman = _int(request.POST.get("max_toman"), cond.max_toman)
     cond.label = (request.POST.get("label") or cond.label)[:40]
-    cond.duration = _int(request.POST.get("duration"), cond.duration, 2, 30)
+    cond.duration = _int(request.POST.get("duration"), cond.duration, 2, 120)
     cond.style = request.POST.get("style") or ""
     if request.FILES.get("gif"):
         cond.gif = request.FILES["gif"]
