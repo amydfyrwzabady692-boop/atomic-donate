@@ -4,9 +4,15 @@ html, body {
   overflow: hidden;
   font-family: Vazirmatn, Tahoma, sans-serif;
   color: #eef6fb;
-  direction: rtl;
 }
+body:not([data-kind="alert"]) { direction: rtl; }
 .overlay-body { min-height: 100vh; }
+body[data-kind="alert"] {
+  direction: ltr;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
 .atom {
   --size: 86px;
@@ -84,20 +90,19 @@ html, body {
 .alert {
   --alert-text: #fff;
   --name-size: 14px;
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  bottom: auto;
+  position: relative;
+  left: auto;
+  top: auto;
   width: max-content;
   max-width: 92%;
   min-width: 0;
-  transform: translate(-50%, -42%) scale(.96);
+  transform: none;
   opacity: 0;
   text-align: center;
   filter: none;
-  transition: .4s cubic-bezier(.22, 1, .36, 1);
+  transition: opacity .4s ease;
 }
-.alert.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+.alert.show { opacity: 1; transform: none; }
 .alert-gif {
   max-width: 220px;
   max-height: 140px;
@@ -119,6 +124,10 @@ html, body {
   flex-direction: column;
   align-items: center;
 }
+.alert-lines {
+  direction: rtl;
+  unicode-bidi: isolate;
+}
 .alert-pill {
   position: relative;
   display: inline-flex;
@@ -138,15 +147,15 @@ html, body {
   position: absolute;
   left: auto;
   right: -12px;
-  top: 50%;
+  top: 0;
+  bottom: 0;
   width: 40px;
   height: 40px;
-  margin: 0;
-  transform: translateY(-50%);
+  margin: auto 0;
+  transform: none;
   display: grid;
   place-items: center;
   pointer-events: none;
-  filter: drop-shadow(0 4px 8px #0008);
 }
 .alert-mark svg {
   width: 40px;
@@ -203,11 +212,11 @@ html, body {
 .alert.style-banner {
   width: max-content;
   max-width: 92%;
-  top: auto;
-  bottom: 28px;
-  transform: translate(-50%, 12px) scale(.96);
+  margin-top: auto;
+  margin-bottom: 28px;
+  transform: none;
 }
-.alert.style-banner.show { transform: translate(-50%, 0) scale(1); }
+.alert.style-banner.show { transform: none; }
 .alert.style-banner .alert-gif { display: none !important; }
 
 .widget, .list-box, .goal-box, .top-box {
