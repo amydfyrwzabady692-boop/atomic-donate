@@ -7,6 +7,7 @@ urlpatterns = [
     path("pay/", views.start_payment, name="pay"),
     path("callback/", views.zarinpal_callback, name="callback"),
     path("overlay/alert/", views.overlay_alert, name="overlay_alert"),
+    path("overlay/gif/", views.overlay_gif, name="overlay_gif"),
     path("overlay/list/", views.overlay_list, name="overlay_list"),
     path("overlay/goal/", views.overlay_goal, name="overlay_goal"),
     path("overlay/top/", views.overlay_top, name="overlay_top"),

@@ -10,10 +10,11 @@
     <li>از کارت‌های زیر لینک را کپی کن. در OBS برو <b>Sources → Add → Browser</b> و لینک را بچسبان.</li>
     <li>تیک <b>Shutdown source when not visible</b> را نزن تا آلارم قطع نشود.</li>
     <li>کنترل لایو: OBS → <b>View → Docks → Custom Browser Dock</b> و لینک داک را بگذار.</li>
-    <li>گیف جدا برای هر مبلغ را از <a href="{% url 'panel_conditions' %}">گیف مرحله‌ای</a> آپلود کن؛ لینک آلارم را در OBS بگذار نه خود فایل را.</li>
+    <li>گیف جدا برای هر مبلغ را از <a href="{% url 'panel_conditions' %}">گیف مرحله‌ای</a> آپلود کن. آلارم و گیف دو لینک جدا هستند.</li>
   </ol>
   <div class="obs-links">
-    <div class="copy-row"><input readonly value="{{ overlay_urls.alert }}"><button type="button" class="tiny copy">آلارم ۸۰۰×۴۵۰</button></div>
+    <div class="copy-row"><input readonly value="{{ overlay_urls.alert }}"><button type="button" class="tiny copy">آلارم ۵۲۰×۲۲۰</button></div>
+    <div class="copy-row"><input readonly value="{{ overlay_urls.gif }}"><button type="button" class="tiny copy">گیف دونیت ۹۶۰×۵۴۰</button></div>
     <div class="copy-row"><input readonly value="{{ overlay_urls.list }}"><button type="button" class="tiny copy">لیست ۳۴۰×۴۲۰</button></div>
     <div class="copy-row"><input readonly value="{{ overlay_urls.goal }}"><button type="button" class="tiny copy">هدف ۳۲۰×۱۰۰</button></div>
     <div class="copy-row"><input readonly value="{{ overlay_urls.timer }}"><button type="button" class="tiny copy">دوناتون ۲۴۰×۳۲۰</button></div>

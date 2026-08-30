@@ -4,12 +4,10 @@
   <meta charset="utf-8">
   <title>Alert</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@600;700;800&display=swap">
-  <link rel="stylesheet" href="/static/css/overlay.css?v=obs1">
+  <link rel="stylesheet" href="/static/css/overlay.css?v=split">
 </head>
 <body class="overlay-body" data-kind="alert" data-key="{{ overlay_key }}" data-style="{{ site.alert_style }}" data-volume="{{ site.alert_volume }}" data-tts-volume="{{ site.tts_volume }}">
   <div id="alert" class="alert style-{{ site.alert_style }}">
-    <img id="gif" class="alert-gif" alt="">
-    <video id="clip" class="alert-gif" muted loop playsinline></video>
     <div class="alert-copy">
       <div class="alert-pill" dir="rtl">
         <span class="alert-mark" aria-hidden="true">
@@ -31,6 +29,6 @@
       </div>
     </div>
   </div>
-  <script src="/static/js/overlay.js?v=obs1"></script>
+  <script src="/static/js/overlay.js?v=split"></script>
 </body>
 </html>

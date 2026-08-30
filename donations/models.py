@@ -84,7 +84,7 @@ class SiteSettings(models.Model):
 
     alert_seconds = models.PositiveIntegerField("مدت آلارم (ثانیه)", default=8, validators=[MinValueValidator(2), MaxValueValidator(30)])
     alert_volume = models.PositiveSmallIntegerField("صدای دونیت", default=80, validators=[MinValueValidator(0), MaxValueValidator(100)])
-    tts_enabled = models.BooleanField("خواندن پیام", default=True)
+    tts_enabled = models.BooleanField("خواندن پیام", default=False)
     tts_volume = models.PositiveSmallIntegerField("صدای خواندن", default=85, validators=[MinValueValidator(0), MaxValueValidator(100)])
     tts_rate = models.FloatField("سرعت خواندن", default=1.0)
     tts_pitch = models.FloatField("زیر و بمی صدا", default=1.0)

@@ -5,7 +5,7 @@ let cfg = {
   alert_volume: Number(body.dataset.volume || 80) / 100,
   tts_volume: Number(body.dataset.ttsVolume || 85) / 100,
   duration: 8,
-  tts: true,
+  tts: false,
   sound_enabled: true,
   gif: "",
   sound: "",
@@ -142,7 +142,7 @@ function onPayload(data) {
     if (kind === "top" || kind === "label") renderLabel(data);
     if (kind === "total") renderTotal(data);
     if (kind === "queue") startQueue(data.donors || []);
-    if (!wsLive && data.latest && lastId && data.latest.id !== lastId && kind === "alert" && !data.latest.skip_stream) {
+    if (!wsLive && data.latest && lastId && data.latest.id !== lastId && (kind === "alert" || kind === "gif") && !data.latest.skip_stream) {
       enqueue({ ...data, ...data.latest });
     }
     if (data.latest) lastId = data.latest.id;
@@ -150,7 +150,7 @@ function onPayload(data) {
   if (data.type === "donation") {
     lastId = data.id;
     if (data.skip_stream) return;
-    if (kind === "alert") enqueue(data);
+    if (kind === "alert" || kind === "gif") enqueue(data);
     if (kind === "list" && data.show_in_list !== false) prependDonor(data);
     if (kind === "goal") renderGoal(data.goal);
     if (kind === "top" || kind === "label") renderLabel(data);
@@ -169,6 +169,8 @@ function skipAlert() {
   clearTimeout(hideTimer);
   const box = document.getElementById("alert");
   if (box) box.className = `alert style-${cfg.alert_style || "glass"}`;
+  const media = document.getElementById("media");
+  if (media) media.classList.remove("show");
   try {
     speechSynthesis.cancel();
   } catch (err) {
@@ -355,11 +357,17 @@ function showAlertMedia(url) {
       img.style.display = "none";
     }
     if (vid) {
+      vid.muted = false;
+      vid.loop = true;
       vid.src = stamped;
       vid.style.display = "block";
-      vid.muted = true;
-      vid.loop = true;
-      vid.play().catch(() => {});
+      const start = () => vid.play().catch(() => {
+        vid.muted = true;
+        vid.play().then(() => {
+          vid.muted = false;
+        }).catch(() => {});
+      });
+      start();
     }
     return;
   }
@@ -382,19 +390,39 @@ function playNext() {
   }
   playing = true;
   const gen = playGen;
+  const ms = Math.max(3, Number(data.duration || cfg.duration || 8)) * 1000;
+
+  if (kind === "gif") {
+    const url = data.gif || cfg.gif;
+    showAlertMedia(url);
+    const media = document.getElementById("media");
+    if (media) media.classList.toggle("show", Boolean(url));
+    hideTimer = setTimeout(() => {
+      if (gen !== playGen) return;
+      if (media) media.classList.remove("show");
+      hideAlertMedia();
+      setTimeout(() => {
+        if (gen !== playGen) return;
+        playNext();
+      }, 250);
+    }, ms);
+    return;
+  }
+
   const box = document.getElementById("alert");
+  if (!box) {
+    playing = false;
+    return;
+  }
   document.getElementById("who").textContent = data.name;
   document.getElementById("amount").textContent = `مبلغ ${formatToman(data.amount)} تومان حمایت کرد`;
   document.getElementById("msg").textContent = data.message || "";
   const emo = document.getElementById("emoji");
   if (emo) emo.textContent = data.emoji || "";
-  showAlertMedia(data.gif || cfg.gif);
-  const hasMedia = Boolean(data.gif || cfg.gif);
   const style = data.alert_style || cfg.alert_style || "glass";
-  box.className = `alert style-${style} show${hasMedia ? " has-media" : ""}`;
+  box.className = `alert style-${style} show`;
   playSound(data);
   if (data.tts ?? cfg.tts) speak(`${data.name} ${formatToman(data.amount)} تومان. ${data.message || ""}`);
-  const ms = Math.max(3, Number(data.duration || cfg.duration || 8)) * 1000;
   hideTimer = setTimeout(() => {
     if (gen !== playGen) return;
     box.classList.remove("show");
@@ -408,15 +436,13 @@ function playNext() {
 }
 
 function playSound(data) {
+  if (kind !== "alert") return;
   if ((data.sound_enabled ?? cfg.sound_enabled) === false) return;
-  audio.volume = Math.max(0, Math.min(1, data.alert_volume ?? cfg.alert_volume ?? 0.8));
   const src = data.sound || cfg.sound;
-  if (src) {
-    audio.src = `${src}?t=${Date.now()}`;
-    audio.play().catch(() => playChime(audio.volume));
-    return;
-  }
-  playChime(audio.volume);
+  if (!src) return;
+  audio.volume = Math.max(0, Math.min(1, data.alert_volume ?? cfg.alert_volume ?? 0.8));
+  audio.src = `${src}?t=${Date.now()}`;
+  audio.play().catch(() => {});
 }
 
 function playChime(volume) {

@@ -3,19 +3,35 @@
 {% block kicker %}پنل کاربری / ابزارها / گیف مرحله‌ای{% endblock %}
 {% block heading %}گیف دونیت بر اساس مبلغ{% endblock %}
 {% block content %}
-{% include "panel/_overlay_bar.html" with bar_url=overlay_urls.alert size="۸۰۰×۴۵۰" %}
+{% include "panel/_overlay_bar.html" with bar_url=overlay_urls.gif size="۹۶۰×۵۴۰" %}
 
 <section class="card obs-guide" style="margin-bottom:16px">
-  <h2>چطور گیف را در OBS ببینم؟</h2>
+  <h2>چطور گیف دونیت را در OBS ببینم؟</h2>
   <ol class="obs-steps">
-    <li>فایل گیف یا ویدیو (GIF / WebM / MP4) را در یکی از مرحله‌های پایین آپلود کن.</li>
-    <li>لینک آلارم را در OBS به‌صورت Browser Source بگذار — خود فایل را جدا در OBS نگذار.</li>
-    <li>اندازه پیشنهادی آلارم ۸۰۰×۴۵۰ است. Control Audio via OBS را روشن کن.</li>
-    <li>با «نمایش هشدار این مبلغ» تست کن. اگر Browser Source باز باشد، گیف همان مرحله پخش می‌شود.</li>
-    <li>هر وقت خواستی مرحله جدید بساز یا یکی را حذف کن. بازه تنگ‌تر برنده است.</li>
+    <li>این لینک را جدا از آلارم به‌صورت Browser Source بگذار. آلارم لینک خودش را دارد.</li>
+    <li>اندازه پیشنهادی گیف <b>۹۶۰×۵۴۰</b> است. در OBS آن را پایین بگذار، آلارم را بالا.</li>
+    <li>تیک <b>Control audio via OBS</b> را روشن کن تا صدای خود ویدیو بیاید.</li>
+    <li>فایل GIF / WebM / MP4 را در مرحله‌های پایین آپلود کن. هر مبلغ، ویدیوی همان بازه را پخش می‌کند.</li>
+    <li>خود فایل را جدا در OBS نگذار؛ همین لینک گیف دونیت کافی است.</li>
   </ol>
-  <p class="muted">اگر مبلغی به هیچ مرحله‌ای نخورد، گیف پیش‌فرض صفحه <a href="{% url 'panel_alert' %}">هشدار رویداد</a> پخش می‌شود.</p>
 </section>
+
+<form class="card stack" method="post" enctype="multipart/form-data" style="margin-bottom:16px">
+  {% csrf_token %}
+  <input type="hidden" name="save_default_gif" value="1">
+  <h2>ویدیو / گیف پیش‌فرض</h2>
+  <p class="muted">اگر مبلغی به هیچ مرحله‌ای نخورد، این فایل پخش می‌شود.</p>
+  <label>فایل پیش‌فرض <input type="file" name="alert_gif" accept="image/gif,image/webp,image/png,image/jpeg,video/webm,video/mp4"></label>
+  {% if site.alert_gif %}
+    {% if ".webm" in site.alert_gif.url or ".mp4" in site.alert_gif.url %}
+      <video class="media-preview" src="{{ site.alert_gif.url }}" controls playsinline></video>
+    {% else %}
+      <img class="media-preview" src="{{ site.alert_gif.url }}" alt="gif">
+    {% endif %}
+    <label class="check"><input type="checkbox" name="clear_gif"> حذف فایل پیش‌فرض</label>
+  {% endif %}
+  <button class="btn" type="submit">ذخیره پیش‌فرض</button>
+</form>
 
 <form class="card stack" method="post" enctype="multipart/form-data">
   {% csrf_token %}
@@ -41,7 +57,8 @@
     </label>
   </div>
   <label>گیف / ویدیو این مرحله <input type="file" name="gif" accept="image/gif,image/webp,image/png,image/jpeg,video/webm,video/mp4"></label>
-  <label>صدای این مرحله (اختیاری) <input type="file" name="sound" accept="audio/*"></label>
+  <p class="muted">ویدیو صدای داخل فایل را پخش می‌کند. فیلد صدا فقط برای آلارم متنی است و لازم نیست.</p>
+  <label>صدای اضافه آلارم متنی (اختیاری) <input type="file" name="sound" accept="audio/*"></label>
   <button class="btn" type="submit">افزودن مرحله</button>
 </form>
 
@@ -76,7 +93,7 @@
         {% else %}
           <img class="media-preview" src="{{ c.gif.url }}" alt="">
         {% endif %}
-        <p class="muted" style="margin:0">لینک فایل: <code>{{ c.gif.url }}</code> — این را در OBS نگذار؛ لینک آلارم را بگذار.</p>
+        <p class="muted" style="margin:0">این را در OBS نگذار؛ لینک گیف دونیت بالای صفحه را بگذار.</p>
         <label class="check"><input type="checkbox" name="clear_gif"> حذف گیف فعلی</label>
       {% endif %}
       <label>جایگزینی گیف / ویدیو <input type="file" name="gif" accept="image/gif,image/webp,image/png,image/jpeg,video/webm,video/mp4"></label>

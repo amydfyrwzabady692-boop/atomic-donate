@@ -5,10 +5,13 @@ html, body {
   font-family: Vazirmatn, Tahoma, sans-serif;
   color: #eef6fb;
 }
-body:not([data-kind="alert"]) { direction: rtl; }
+body:not([data-kind="alert"]):not([data-kind="gif"]) { direction: rtl; }
 .overlay-body { min-height: 100vh; }
-body[data-kind="alert"] {
+body[data-kind="alert"],
+body[data-kind="gif"] {
   direction: ltr;
+}
+body[data-kind="alert"] {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -103,15 +106,26 @@ body[data-kind="alert"] {
   transition: opacity .4s ease;
 }
 .alert.show { opacity: 1; transform: none; }
-.alert-gif {
-  max-width: 220px;
-  max-height: 140px;
+.alert-gif { display: none; }
+
+.media-stage {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s ease;
+}
+.media-stage.show { opacity: 1; }
+.media-clip {
   display: none;
-  margin: 0 auto 10px;
-  border-radius: 12px;
+  max-width: 96vw;
+  max-height: 96vh;
+  width: auto;
+  height: auto;
   object-fit: contain;
-  background: none;
-  box-shadow: none;
 }
 .alert-copy,
 .alert-lines {

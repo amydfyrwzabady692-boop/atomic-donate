@@ -50,6 +50,7 @@ def _overlay_urls():
 
     return {
         "alert": u("/overlay/alert/"),
+        "gif": u("/overlay/gif/"),
         "list": u("/overlay/list/", "mode=last"),
         "list_biggest": u("/overlay/list/", "mode=biggest"),
         "list_donors": u("/overlay/list/", "mode=donors"),
@@ -314,6 +315,10 @@ def overlay_alert(request):
     return _overlay_page(request, "overlay/alert.html")
 
 
+def overlay_gif(request):
+    return _overlay_page(request, "overlay/gif.html")
+
+
 def overlay_list(request):
     return _overlay_page(request, "overlay/list.html")
 
@@ -499,17 +504,13 @@ def panel_alert(request):
         alert_style = request.POST.get("alert_style")
         if alert_style in dict(SiteSettings.AlertStyle.choices):
             site.alert_style = alert_style
-        if request.FILES.get("alert_gif"):
-            site.alert_gif = request.FILES["alert_gif"]
         if request.FILES.get("alert_sound"):
             site.alert_sound = request.FILES["alert_sound"]
-        if request.POST.get("clear_gif") == "on":
-            site.alert_gif = None
         if request.POST.get("clear_sound") == "on":
             site.alert_sound = None
         site.save()
         broadcast_settings(site)
-        messages.success(request, "آلارم، گیف و صدا ذخیره شد و به OBS فرستاده شد.")
+        messages.success(request, "آلارم ذخیره شد و به OBS فرستاده شد.")
         return redirect("panel_alert")
     return render(
         request,
@@ -622,12 +623,12 @@ def panel_files(request):
     if site.avatar:
         assets.append(("آواتار", site.avatar.url, "gateway"))
     if site.alert_gif:
-        assets.append(("گیف آلارم", site.alert_gif.url, "alert"))
+        assets.append(("گیف دونیت پیش‌فرض", site.alert_gif.url, "gif"))
     if site.alert_sound:
         assets.append(("صدای آلارم", site.alert_sound.url, "sound"))
     for cond in AlertCondition.objects.all():
         if cond.gif:
-            assets.append((f"گیف شرط {cond.label or cond.min_toman}", cond.gif.url, "alert"))
+            assets.append((f"گیف شرط {cond.label or cond.min_toman}", cond.gif.url, "gif"))
         if cond.sound:
             assets.append((f"صدای شرط {cond.label or cond.min_toman}", cond.sound.url, "sound"))
     for donation in Donation.objects.exclude(receipt="").order_by("-created_at")[:12]:
@@ -798,6 +799,15 @@ def panel_conditions(request):
     site = SiteSettings.load()
     ensure_default_alert_tiers()
     if request.method == "POST":
+        if request.POST.get("save_default_gif"):
+            if request.FILES.get("alert_gif"):
+                site.alert_gif = request.FILES["alert_gif"]
+            if request.POST.get("clear_gif") == "on":
+                site.alert_gif = None
+            site.save()
+            broadcast_settings(site)
+            messages.success(request, "ویدیوی پیش‌فرض گیف دونیت ذخیره شد.")
+            return redirect("panel_conditions")
         AlertCondition.objects.create(
             min_toman=_int(request.POST.get("min_toman"), 0),
             max_toman=_int(request.POST.get("max_toman"), 0),
@@ -807,7 +817,7 @@ def panel_conditions(request):
             gif=request.FILES.get("gif"),
             sound=request.FILES.get("sound"),
         )
-        messages.success(request, "مرحله اضافه شد. گیف همین بازه روی آلارم OBS پخش می‌شود.")
+        messages.success(request, "مرحله اضافه شد. روی لینک گیف دونیت در OBS پخش می‌شود.")
         return redirect("panel_conditions")
     return render(
         request,
@@ -836,7 +846,7 @@ def panel_condition_update(request, pk):
         cond.sound = None
     cond.save()
     broadcast_settings(site)
-    messages.success(request, "مرحله ذخیره شد. با «نمایش هشدار» همان مبلغ را روی OBS تست کن.")
+    messages.success(request, "مرحله ذخیره شد. با تست همان مبلغ روی لینک گیف دونیت ببین.")
     return redirect("panel_conditions")
 
 

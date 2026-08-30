@@ -140,6 +140,7 @@ class OverlayTests(TestCase):
             self.assertEqual(client.get("/overlay/alert/").status_code, 404)
             for path in (
                 "/overlay/alert/?key=obs-secret",
+                "/overlay/gif/?key=obs-secret",
                 "/overlay/list/?key=obs-secret&mode=last",
                 "/overlay/goal/?key=obs-secret",
                 "/overlay/label/?key=obs-secret&mode=latest",

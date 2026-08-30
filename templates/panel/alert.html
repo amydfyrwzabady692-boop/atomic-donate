@@ -1,8 +1,10 @@
 {% extends "panel/base.html" %}
 {% block kicker %}پنل کاربری / ابزارها / هشدار رویداد جدید{% endblock %}
-{% block heading %}هشدار رویداد جدید{% endblock %}
+{% block heading %}آلارم متنی{% endblock %}
 {% block content %}
-{% include "panel/_overlay_bar.html" with bar_url=overlay_urls.alert size="۸۰۰×۴۵۰" %}
+{% include "panel/_overlay_bar.html" with bar_url=overlay_urls.alert size="۵۲۰×۲۲۰" %}
+
+<p class="muted note">این لینک فقط اسم و مبلغ را نشان می‌دهد. ویدیو/گیف دونیت لینک جدا دارد: <a href="{% url 'panel_conditions' %}">گیف مرحله‌ای</a>. در OBS آلارم را بالا بگذار، گیف را پایین.</p>
 
 <section class="grid-2" style="margin-top:16px">
   <form class="card stack" method="post" enctype="multipart/form-data">
@@ -12,18 +14,11 @@
     </label>
     <label>رنگ نوشته <input type="color" name="alert_text" value="{{ site.alert_text }}"></label>
     <label>اندازه نام <input type="number" name="alert_name_size" min="12" max="48" value="{{ site.alert_name_size }}"></label>
-    <label>گیف / ویدیو پیش‌فرض (اگر مرحله مبلغ نخورد)
-      <input type="file" name="alert_gif" accept="image/gif,image/webp,image/png,image/jpeg,video/webm,video/mp4">
+    <label>مدت نمایش: <b id="sec-val">{{ site.alert_seconds }}</b> ثانیه
+      <input type="range" name="alert_seconds" min="2" max="30" value="{{ site.alert_seconds }}" data-output="sec-val">
     </label>
-    <p class="muted">برای گیف جدا بر اساس مبلغ برو به <a href="{% url 'panel_conditions' %}">گیف مرحله‌ای</a>. خود فایل را در OBS آپلود نکن؛ لینک آلارم را Browser Source کن.</p>
-    {% if site.alert_gif %}
-      {% if ".webm" in site.alert_gif.url or ".mp4" in site.alert_gif.url %}
-        <video class="media-preview" src="{{ site.alert_gif.url }}" muted loop autoplay playsinline></video>
-      {% else %}
-        <img class="media-preview" src="{{ site.alert_gif.url }}" alt="gif">
-      {% endif %}
-      <label class="check"><input type="checkbox" name="clear_gif"> حذف گیف</label>
-    {% endif %}
+    <h2>صدای آلارم (جدا از ویدیو)</h2>
+    <p class="muted">اگر فایلی نگذاری، آلارم بی‌صدا می‌ماند. هر وقت خواستی mp3 بگذار.</p>
     <label>فایل صدا (mp3 / wav / ogg)
       <input type="file" name="alert_sound" accept="audio/*">
     </label>
@@ -31,21 +26,21 @@
       <audio controls src="{{ site.alert_sound.url }}"></audio>
       <label class="check"><input type="checkbox" name="clear_sound"> حذف صدا</label>
     {% endif %}
-    <label>مدت نمایش: <b id="sec-val">{{ site.alert_seconds }}</b> ثانیه
-      <input type="range" name="alert_seconds" min="2" max="30" value="{{ site.alert_seconds }}" data-output="sec-val">
-    </label>
-    <label>صدای دونیت: <b id="vol-val">{{ site.alert_volume }}</b>٪
+    <label>صدای آلارم: <b id="vol-val">{{ site.alert_volume }}</b>٪
       <input type="range" name="alert_volume" min="0" max="100" value="{{ site.alert_volume }}" data-output="vol-val" data-live-volume="alert">
     </label>
-    <label>صدای خواندن پیام: <b id="tts-val">{{ site.tts_volume }}</b>٪
+    <label class="check"><input type="checkbox" name="sound_enabled" {% if site.sound_enabled %}checked{% endif %}> پخش فایل صدای آلارم وقتی آپلود شده باشد</label>
+
+    <h2>خواندن مبلغ (الان خاموش)</h2>
+    <p class="muted">صدای خواندن اسم و مبلغ به‌صورت پیش‌فرض پخش نمی‌شود. اگر بعداً خواستی، این بخش را روشن کن.</p>
+    <label class="check"><input type="checkbox" name="tts_enabled" {% if site.tts_enabled %}checked{% endif %}> خواندن نام و مبلغ در OBS</label>
+    <label>صدای خواندن: <b id="tts-val">{{ site.tts_volume }}</b>٪
       <input type="range" name="tts_volume" min="0" max="100" value="{{ site.tts_volume }}" data-output="tts-val" data-live-volume="tts">
     </label>
     <div class="row">
       <label>سرعت خواندن <input type="number" name="tts_rate" step="0.1" min="0.5" max="2" value="{{ site.tts_rate }}"></label>
       <label>زیر و بمی <input type="number" name="tts_pitch" step="0.1" min="0" max="2" value="{{ site.tts_pitch }}"></label>
     </div>
-    <label class="check"><input type="checkbox" name="sound_enabled" {% if site.sound_enabled %}checked{% endif %}> پخش صدای دونیت</label>
-    <label class="check"><input type="checkbox" name="tts_enabled" {% if site.tts_enabled %}checked{% endif %}> خواندن نام و پیام در OBS</label>
     <button class="btn" type="submit">ذخیره آلارم</button>
   </form>
 
