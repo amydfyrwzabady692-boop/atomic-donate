@@ -57,7 +57,7 @@
           <label class="pay-method{% if form.method != 'card' %} on{% endif %}">
             <input type="radio" name="method" value="zarinpal" {% if form.method != 'card' %}checked{% endif %}>
             <span>پرداخت امن</span>
-            <small>زرین‌پال — حالت پیش‌فرض</small>
+            <small>زرین‌پال</small>
           </label>
           {% if site.card_to_card_enabled %}
           <label class="pay-method{% if form.method == 'card' %} on{% endif %}">
