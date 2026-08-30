@@ -46,14 +46,15 @@ function paint(el, name, value) {
   if (el && value) el.style.setProperty(name, value);
 }
 
-const LEGACY_PURPLE = new Set([
+const LEGACY_FILL = new Set([
   "#a78bfa", "#7c4dff", "#7c5cff", "#7c3aed", "#a855f7", "#8b5cf6",
   "#c4b5fd", "#6d28d9", "#4c1d95", "#5b21b6",
+  "#c9a227", "#e8c547", "#fde68a", "#fbbf24", "#e8b86d",
 ]);
 
-function chromeGold(value, fallback = "#c9a227") {
+function iceFill(value, fallback = "#7dd3fc") {
   const v = String(value || "").toLowerCase();
-  if (!v || LEGACY_PURPLE.has(v)) return fallback;
+  if (!v || LEGACY_FILL.has(v)) return fallback;
   return value;
 }
 
@@ -69,9 +70,9 @@ function applyWidgetTheme() {
   const g = cfg.goal || {};
   const goal = document.getElementById("goal");
   if (goal) {
-    paint(goal, "--fill", chromeGold(g.fill));
+    paint(goal, "--fill", iceFill(g.fill));
     paint(goal, "--track", darkIfLight(g.track, "#1c1c20"));
-    paint(goal, "--widget-text", darkIfLight(g.text, "#f4f1ea"));
+    paint(goal, "--widget-text", darkIfLight(g.text, "#eef6fb"));
     paint(goal, "--widget-bg", darkIfLight(g.bg, "#121218"));
     paint(goal, "--widget-radius", `${g.radius ?? 20}px`);
     paint(goal, "--widget-font", `${g.font_size ?? 18}px`);
@@ -81,17 +82,17 @@ function applyWidgetTheme() {
   const list = document.getElementById("list");
   if (list) {
     paint(list, "--widget-bg", darkIfLight(cfg.list_bg, "#121218"));
-    paint(list, "--widget-text", darkIfLight(cfg.list_text, "#f4f1ea"));
+    paint(list, "--widget-text", darkIfLight(cfg.list_text, "#eef6fb"));
   }
   const tops = document.querySelectorAll(".top-box, .timer-box");
   tops.forEach((el) => {
     paint(el, "--widget-bg", darkIfLight(cfg.list_bg || g.bg, "#121218"));
-    paint(el, "--widget-text", darkIfLight(cfg.list_text || g.text, "#f4f1ea"));
-    paint(el, "--fill", chromeGold(g.fill));
+    paint(el, "--widget-text", darkIfLight(cfg.list_text || g.text, "#eef6fb"));
+    paint(el, "--fill", iceFill(g.fill));
   });
   const alert = document.getElementById("alert");
   if (alert) {
-    paint(alert, "--alert-text", darkIfLight(cfg.alert_text, "#f4f1ea"));
+    paint(alert, "--alert-text", darkIfLight(cfg.alert_text, "#eef6fb"));
     paint(alert, "--name-size", `${cfg.alert_name_size || 22}px`);
   }
 }

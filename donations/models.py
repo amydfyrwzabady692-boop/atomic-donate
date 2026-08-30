@@ -5,7 +5,7 @@ from django.db.models import Sum
 
 class SiteSettings(models.Model):
     class GatewayTheme(models.TextChoices):
-        MIDNIGHT = "midnight", "گرافیت طلایی"
+        MIDNIGHT = "midnight", "آبی یخی"
         AURORA = "aurora", "شفق"
         ROYAL = "royal", "طلایی سلطنتی"
         EMBER = "ember", "آتشی"
@@ -38,7 +38,7 @@ class SiteSettings(models.Model):
     page_title = models.CharField("عنوان صفحه", max_length=120, default="حمایت از استریم")
     bio = models.CharField("توضیح کوتاه درگاه", max_length=220, blank=True, default="اگر از استریم لذت می‌بری، حمایت کن تا ادامه بدم.")
     avatar = models.ImageField("آواتار", upload_to="avatar/", blank=True)
-    accent_color = models.CharField("رنگ اصلی", max_length=9, default="#c9a227")
+    accent_color = models.CharField("رنگ اصلی", max_length=9, default="#7dd3fc")
     gateway_theme = models.CharField("تم درگاه", max_length=20, choices=GatewayTheme.choices, default=GatewayTheme.MIDNIGHT)
     show_goal_on_gateway = models.BooleanField("نمایش هدف روی درگاه", default=True)
     show_recent_on_gateway = models.BooleanField("نمایش حامیان روی درگاه", default=True)
@@ -55,7 +55,7 @@ class SiteSettings(models.Model):
     goal_active = models.BooleanField("هدف فعال", default=True)
     goal_show_title = models.BooleanField("نمایش عنوان هدف", default=True)
     goal_show_details = models.BooleanField("نمایش جزئیات هدف", default=True)
-    goal_fill = models.CharField("رنگ پرشدگی", max_length=9, default="#c9a227")
+    goal_fill = models.CharField("رنگ پرشدگی", max_length=9, default="#7dd3fc")
     goal_track = models.CharField("رنگ پس‌زمینه نوار", max_length=9, default="#1c1c20")
     goal_text = models.CharField("رنگ نوشته هدف", max_length=9, default="#f4f1ea")
     goal_bg = models.CharField("رنگ پشت ویجت", max_length=9, default="#121218")
