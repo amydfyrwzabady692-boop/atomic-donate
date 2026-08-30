@@ -20,7 +20,7 @@ body.gate {
 .theme-royal { --accent: #e8b86d; }
 .theme-ember { --accent: #ff7a3d; }
 .theme-ocean { --accent: #38bdf8; }
-.theme-midnight { --accent: #a78bfa; }
+.theme-midnight { --accent: #c9a227; }
 
 .haze {
   position: fixed;
@@ -112,14 +112,14 @@ h1 { margin: 4px 0 0; font-size: 28px; font-weight: 800; letter-spacing: .02em; 
 
 .goal-strip {
   background:
-    radial-gradient(circle at 90% 0%, #a855f722, transparent 50%),
-    linear-gradient(180deg, #1a1028, #0b0812);
-  border: 1px solid #d4d4d855;
+    radial-gradient(circle at 90% 0%, #c9a22722, transparent 50%),
+    linear-gradient(180deg, #161618, #0b0b0d);
+  border: 1px solid #cfd3d855;
   outline: 3px solid #111;
   border-radius: 22px;
   padding: 14px 16px 16px;
   margin-bottom: 18px;
-  box-shadow: inset 0 1px 0 #ffffff22, 0 0 24px #7c3aed33;
+  box-shadow: inset 0 1px 0 #ffffff22, 0 0 18px #c9a22722;
 }
 .goal-copy { display: flex; justify-content: space-between; font-weight: 800; font-size: 14px; }
 .goal-copy b { color: #fde68a; }
@@ -128,7 +128,7 @@ h1 { margin: 4px 0 0; font-size: 28px; font-weight: 800; letter-spacing: .02em; 
   margin: 10px 0 8px;
   background:
     repeating-linear-gradient(-32deg, #ffffff10 0 8px, transparent 8px 16px),
-    #12081f;
+    #070708;
   border-radius: 999px;
   overflow: hidden;
   border: 2px solid #111;
@@ -136,7 +136,7 @@ h1 { margin: 4px 0 0; font-size: 28px; font-weight: 800; letter-spacing: .02em; 
 .goal-bar i {
   display: block;
   height: 100%;
-  background: linear-gradient(90deg, #7c3aed, #a855f7, #fbbf24);
+  background: linear-gradient(90deg, #94a3b8, #e8e4dc, #c9a227);
   border-radius: 999px;
 }
 .goal-strip p { margin: 0; color: var(--muted); font-size: 12px; }
@@ -171,15 +171,15 @@ input:focus, textarea:focus {
   border: 1px solid #ffffff12;
 }
 .chip:hover, .chip.on {
-  background: var(--accent);
-  color: #fff;
+  background: linear-gradient(90deg, #e8e4dc, var(--accent));
+  color: #111;
   font-weight: 800;
   border-color: transparent;
-  box-shadow: 0 8px 22px color-mix(in srgb, var(--accent) 45%, transparent);
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--accent) 42%, transparent);
 }
 .cta {
-  background: linear-gradient(90deg, var(--accent), #c4b5fd);
-  color: #fff;
+  background: linear-gradient(90deg, #d4d4d8, var(--accent));
+  color: #111;
   font-weight: 800;
   padding: 14px;
   border-radius: 14px;
@@ -231,7 +231,7 @@ input:focus, textarea:focus {
   margin: 0 0 12px;
   font-size: 14px;
   letter-spacing: .08em;
-  color: #93c5fd;
+  color: #e8c547;
 }
 .donor-drawer ul { list-style: none; margin: 0; padding: 0; }
 .donor-drawer li {
@@ -248,7 +248,7 @@ input:focus, textarea:focus {
   color: #fff;
   text-shadow: 0 1px 3px #0008;
   overflow: hidden;
-  background: linear-gradient(135deg, #8b5cf6, #4c1d95);
+  background: linear-gradient(135deg, #52525b, #171717);
   box-shadow: 0 8px 16px #0006;
 }
 .donor-drawer li:last-child { margin-bottom: 0; }

@@ -1,10 +1,10 @@
 :root {
-  --bg: #12081f;
-  --card: #1b102c;
-  --ink: #f6efff;
-  --muted: #b9a8d4;
-  --accent: #7c5cff;
-  --pay: #ff7a3d;
+  --bg: #070708;
+  --card: #121218;
+  --ink: #f4f1ea;
+  --muted: #a8a29a;
+  --accent: #c9a227;
+  --pay: #e8c547;
   --line: rgba(255, 255, 255, 0.08);
   --font: Vazirmatn, Tahoma, sans-serif;
 }
@@ -14,8 +14,8 @@ html, body { margin: 0; min-height: 100%; }
 body {
   font-family: var(--font);
   background:
-    radial-gradient(900px 400px at 80% -10%, #5b2b9a55, transparent 60%),
-    radial-gradient(700px 360px at 0% 100%, #3a1b6b55, transparent 55%),
+    radial-gradient(900px 400px at 80% -10%, #c9a22733, transparent 60%),
+    radial-gradient(700px 360px at 0% 100%, #1e3a5a55, transparent 55%),
     var(--bg);
   color: var(--ink);
 }
@@ -45,7 +45,7 @@ label { display: grid; gap: 6px; font-size: 14px; color: var(--muted); }
 input, textarea {
   width: 100%;
   border: 1px solid var(--line);
-  background: #12091f;
+  background: #0b0b0d;
   color: var(--ink);
   border-radius: 14px;
   padding: 12px 14px;
@@ -61,9 +61,9 @@ input, textarea {
   border-radius: 999px;
   padding: 10px 14px;
 }
-.chip { background: #2a1848; color: var(--ink); }
-.pay { background: var(--pay); color: #1a0900; font-weight: 800; padding: 14px; border-radius: 16px; }
-.pay.ghost { display: inline-block; text-align: center; text-decoration: none; background: #2a1848; color: var(--ink); }
+.chip { background: #1c1c20; color: var(--ink); }
+.pay { background: var(--pay); color: #111; font-weight: 800; padding: 14px; border-radius: 16px; }
+.pay.ghost { display: inline-block; text-align: center; text-decoration: none; background: #1c1c20; color: var(--ink); }
 .errors { background: #3d1020; color: #ffd4de; border-radius: 12px; padding: 12px 16px; }
 .ring {
   --p: 0;
@@ -73,7 +73,7 @@ input, textarea {
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: conic-gradient(var(--accent) calc(var(--p) * 1%), #2a1848 0);
+  background: conic-gradient(var(--accent) calc(var(--p) * 1%), #1c1c20 0);
 }
 .ring strong { background: var(--card); width: 118px; height: 118px; border-radius: 50%; display: grid; place-items: center; font-size: 28px; }
 
@@ -88,7 +88,3 @@ input, textarea {
 .check { display: flex; align-items: center; gap: 8px; color: var(--ink); }
 .check input { width: auto; }
 .table-wrap { overflow: auto; }
-table { width: 100%; border-collapse: collapse; }
-th, td { text-align: right; padding: 10px 8px; border-bottom: 1px solid var(--line); font-size: 14px; }
-.flash { background: #14331f; color: #c8ffd8; border-radius: 12px; padding: 12px 16px; }
-.panel-login { min-height: 100vh; }

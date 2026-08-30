@@ -46,11 +46,22 @@ function paint(el, name, value) {
   if (el && value) el.style.setProperty(name, value);
 }
 
+const LEGACY_PURPLE = new Set([
+  "#a78bfa", "#7c4dff", "#7c5cff", "#7c3aed", "#a855f7", "#8b5cf6",
+  "#c4b5fd", "#6d28d9", "#4c1d95", "#5b21b6",
+]);
+
+function chromeGold(value, fallback = "#c9a227") {
+  const v = String(value || "").toLowerCase();
+  if (!v || LEGACY_PURPLE.has(v)) return fallback;
+  return value;
+}
+
 function darkIfLight(value, dark) {
   const v = String(value || "").toLowerCase();
   if (!v || v === "#ffffff" || v === "#fff" || v === "#fffffff2" || v === "#fffffff0") return dark;
   if (v === "#2e1065" || v === "#3b0764" || v === "#1e1b4b") return dark;
-  if (v === "#e9e1ff") return "#2a2438";
+  if (v === "#e9e1ff" || v === "#2a2438") return "#1c1c20";
   return value;
 }
 
@@ -58,8 +69,8 @@ function applyWidgetTheme() {
   const g = cfg.goal || {};
   const goal = document.getElementById("goal");
   if (goal) {
-    paint(goal, "--fill", g.fill || "#a78bfa");
-    paint(goal, "--track", darkIfLight(g.track, "#2a2438"));
+    paint(goal, "--fill", chromeGold(g.fill));
+    paint(goal, "--track", darkIfLight(g.track, "#1c1c20"));
     paint(goal, "--widget-text", darkIfLight(g.text, "#f4f1ea"));
     paint(goal, "--widget-bg", darkIfLight(g.bg, "#121218"));
     paint(goal, "--widget-radius", `${g.radius ?? 20}px`);
@@ -76,7 +87,7 @@ function applyWidgetTheme() {
   tops.forEach((el) => {
     paint(el, "--widget-bg", darkIfLight(cfg.list_bg || g.bg, "#121218"));
     paint(el, "--widget-text", darkIfLight(cfg.list_text || g.text, "#f4f1ea"));
-    paint(el, "--fill", g.fill || "#a78bfa");
+    paint(el, "--fill", chromeGold(g.fill));
   });
   const alert = document.getElementById("alert");
   if (alert) {
@@ -371,7 +382,7 @@ function playNext() {
   document.getElementById("who").textContent = data.name;
   document.getElementById("amount").textContent = `${formatToman(data.amount)} تومان`;
   document.getElementById("msg").textContent = data.message || "";
-  document.getElementById("emoji").textContent = data.emoji || "💜";
+  document.getElementById("emoji").textContent = data.emoji || "⚡";
   showAlertMedia(data.gif || cfg.gif);
   if (data.alert_style) {
     box.className = `alert style-${data.alert_style} show`;
