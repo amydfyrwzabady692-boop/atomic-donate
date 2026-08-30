@@ -4,14 +4,14 @@
   <meta charset="utf-8">
   <title>Alert</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@600;700;800&display=swap">
-  <link rel="stylesheet" href="/static/css/overlay.css?v=match">
+  <link rel="stylesheet" href="/static/css/overlay.css?v=dir">
 </head>
 <body class="overlay-body" data-kind="alert" data-key="{{ overlay_key }}" data-style="{{ site.alert_style }}" data-volume="{{ site.alert_volume }}" data-tts-volume="{{ site.tts_volume }}">
   <div id="alert" class="alert style-{{ site.alert_style }}">
     <img id="gif" class="alert-gif" alt="">
     <video id="clip" class="alert-gif" muted loop playsinline></video>
     <div class="alert-copy">
-      <div class="alert-pill" dir="ltr">
+      <div class="alert-pill" dir="rtl">
         <span class="alert-mark" aria-hidden="true">
           <svg viewBox="0 0 40 40" fill="none">
             <ellipse cx="20" cy="20" rx="15" ry="6.2" stroke="#fff" stroke-width="1.7" transform="rotate(-28 20 20)"/>
@@ -21,7 +21,7 @@
             <circle cx="31" cy="12" r="2.2" fill="#67e8f9" stroke="#fff" stroke-width="1"/>
           </svg>
         </span>
-        <span class="alert-brand">{{ site.display_name }}</span>
+        <span class="alert-brand" dir="ltr">{{ site.display_name }}</span>
       </div>
       <span id="emoji" class="alert-emoji" hidden></span>
       <div class="alert-lines">
@@ -31,6 +31,6 @@
       </div>
     </div>
   </div>
-  <script src="/static/js/overlay.js?v=match"></script>
+  <script src="/static/js/overlay.js?v=dir"></script>
 </body>
 </html>
