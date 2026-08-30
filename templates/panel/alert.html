@@ -62,7 +62,7 @@
         <button class="btn" type="submit">نمایش هشدار</button>
       </form>
     </div>
-    <iframe class="preview" src="{{ overlay_urls.alert }}" title="alert preview"></iframe>
+    <iframe class="preview" src="{{ overlay_urls.alert }}{% if '?' in overlay_urls.alert %}&{% else %}?{% endif %}demo=1" title="alert preview"></iframe>
   </div>
 </section>
 {% endblock %}

@@ -92,8 +92,8 @@ function applyWidgetTheme() {
   });
   const alert = document.getElementById("alert");
   if (alert) {
-    paint(alert, "--alert-text", darkIfLight(cfg.alert_text, "#eef6fb"));
-    paint(alert, "--name-size", `${cfg.alert_name_size || 22}px`);
+    paint(alert, "--alert-text", "#fff");
+    paint(alert, "--name-size", "14px");
   }
 }
 
@@ -525,3 +525,14 @@ if (kind === "timer") {
 connect();
 setInterval(poll, 4000);
 if (kind !== "timer") poll();
+
+if (kind === "alert" && new URLSearchParams(location.search).has("demo")) {
+  enqueue({
+    name: "MOMD",
+    amount: 20000000,
+    message: "",
+    duration: 600,
+    sound_enabled: false,
+    tts: false,
+  });
+}
