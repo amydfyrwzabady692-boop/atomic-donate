@@ -6,24 +6,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>حمایت از {{ site.display_name }}</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700;800&display=swap">
-  <link rel="stylesheet" href="/static/css/donate.css?v=ice">
+  <link rel="stylesheet" href="/static/css/donate.css?v=logo">
   <style>:root { --accent: {{ site.accent_color }}; }</style>
 </head>
 <body class="gate theme-{{ site.gateway_theme }}">
   <div class="haze"></div>
   <div class="ring"></div>
   <main class="stage">
-    <section class="hero">
-      <img src="/static/img/omid-atomic.png" alt="Omid Atomic">
-      <div class="hero-veil"></div>
-    </section>
     <article class="gate-card">
       <header class="gate-who">
-        {% if site.avatar %}
-          <img src="{{ site.avatar.url }}" alt="">
-        {% else %}
-          <span class="ava">A</span>
-        {% endif %}
+        <img src="{% if site.avatar %}{{ site.avatar.url }}{% else %}/static/img/omid-atomic.png{% endif %}" alt="{{ site.display_name }}">
         <div>
           <p class="kicker">ATOMIC DONATE</p>
           <h1>{{ site.display_name }}</h1>

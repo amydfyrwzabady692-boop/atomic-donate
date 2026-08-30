@@ -47,38 +47,17 @@ body.gate {
 .stage {
   position: relative;
   z-index: 1;
-  display: grid;
-  grid-template-columns: minmax(280px, 1.05fr) minmax(360px, 480px);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
   min-height: 100vh;
-  max-width: 1280px;
+  max-width: 560px;
   margin: 0 auto;
-  gap: 0;
-  align-items: stretch;
+  padding: 36px 16px 48px;
 }
-.hero {
-  position: relative;
-  min-height: 100vh;
-  overflow: hidden;
-}
-.hero img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 12%;
-  display: block;
-  filter: contrast(1.05) saturate(0.92);
-}
-.hero-veil {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(90deg, #050506 0%, transparent 46%),
-    linear-gradient(180deg, transparent 72%, #050506aa);
-  pointer-events: none;
-}
-
 .gate-card {
-  margin: auto 24px auto 18px;
+  width: 100%;
+  margin: 0;
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: 28px;
@@ -88,9 +67,12 @@ body.gate {
 }
 .gate-who { display: flex; gap: 14px; align-items: center; margin-bottom: 12px; }
 .gate-who img, .ava {
-  width: 64px; height: 64px; border-radius: 18px; object-fit: cover;
+  width: 72px; height: 72px; border-radius: 20px; object-fit: cover;
+  object-position: center 12%;
+  flex: 0 0 72px;
   box-shadow: 0 10px 28px #0008;
   border: 1px solid #ffffff22;
+  background: #111;
 }
 .ava {
   display: grid; place-items: center;
@@ -438,12 +420,7 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--accent); }
 }
 
 @media (max-width: 980px) {
-  .stage { grid-template-columns: 1fr; }
-  .hero { min-height: 42vh; max-height: 46vh; }
-  .hero-veil {
-    background: linear-gradient(180deg, transparent 48%, #050506 96%);
-  }
-  .gate-card { margin: -48px 14px 32px; }
+  .stage { padding: 20px 14px 32px; }
   .ring { display: none; }
 }
 @media (max-width: 640px) {
