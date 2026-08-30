@@ -8,6 +8,13 @@
 </head>
 <body class="overlay-body" data-kind="alert" data-key="{{ overlay_key }}" data-style="{{ site.alert_style }}" data-volume="{{ site.alert_volume }}" data-tts-volume="{{ site.tts_volume }}">
   <div id="alert" class="alert style-{{ site.alert_style }}" style="--alert-text:{{ site.alert_text }};--name-size:{{ site.alert_name_size }}px">
+    <div class="halo"></div>
+    <span class="atom">
+      <i class="nucleus"></i>
+      <i class="path p1"><b class="dot"></b></i>
+      <i class="path p2"><b class="dot"></b></i>
+      <i class="path p3"></i>
+    </span>
     <img id="gif" class="alert-gif" alt="">
     <video id="clip" class="alert-gif" muted loop playsinline></video>
     <div class="alert-copy">

@@ -111,12 +111,15 @@ h1 { margin: 4px 0 0; font-size: 28px; font-weight: 800; letter-spacing: .02em; 
 .socials a { color: var(--accent); font-size: 13px; font-weight: 700; text-decoration: none; }
 
 .goal-strip {
-  background: linear-gradient(180deg, #1a1028, #0b0812);
-  border: 3px solid #111;
+  background:
+    radial-gradient(circle at 90% 0%, #a855f722, transparent 50%),
+    linear-gradient(180deg, #1a1028, #0b0812);
+  border: 1px solid #d4d4d855;
+  outline: 3px solid #111;
   border-radius: 22px;
   padding: 14px 16px 16px;
   margin-bottom: 18px;
-  box-shadow: inset 0 1px 0 #ffffff22;
+  box-shadow: inset 0 1px 0 #ffffff22, 0 0 24px #7c3aed33;
 }
 .goal-copy { display: flex; justify-content: space-between; font-weight: 800; font-size: 14px; }
 .goal-copy b { color: #fde68a; }

@@ -249,7 +249,7 @@ function amountTier(amount) {
 
 function itemHtml(d) {
   const name = escapeHtml(d.name || "");
-  return `<li class="${amountTier(d.amount)}"><span class="who">${name}</span><span class="amt">${formatToman(d.amount)}</span></li>`;
+  return `<li class="${amountTier(d.amount)}"><span class="who">${name}</span><span class="amt"><span class="atom xs"><i class="nucleus"></i><i class="path p1"></i></span>${formatToman(d.amount)}</span></li>`;
 }
 
 function renderGoal(goal) {
