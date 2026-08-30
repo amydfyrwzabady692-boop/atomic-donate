@@ -9,9 +9,11 @@
   <link rel="stylesheet" href="/static/css/donate.css">
   <style>:root { --accent: {{ site.accent_color }}; }</style>
 </head>
-<body class="theme-{{ site.gateway_theme }}">
+<body class="gate theme-{{ site.gateway_theme }}">
+  <div class="orb orb-a"></div>
   <main class="result">
     <section class="pay-card">
+      <img class="mark" src="/static/img/omid-atomic.png" alt="">
       <p class="eye">{% if ok %}حمایت ثبت شد{% else %}انجام نشد{% endif %}</p>
       <h1>{{ title }}</h1>
       <p class="bio">{{ text }}</p>
@@ -19,7 +21,7 @@
         <p class="meta">{{ donation.emoji }} {{ donation.name }} — {{ donation.amount_toman|toman }} تومان</p>
         {% if donation.ref_id %}<p class="meta">کد پیگیری: {{ donation.ref_id }}</p>{% endif %}
       {% endif %}
-      <a class="cta ghost" href="{% url 'donate' %}">بازگشت به درگاه</a>
+      <a class="cta" href="{% url 'donate' %}">بازگشت به درگاه</a>
     </section>
   </main>
 </body>

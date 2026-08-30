@@ -3,11 +3,11 @@
 {% block kicker %}پنل کاربری / ابزارها / شرط مبلغ{% endblock %}
 {% block heading %}شرط‌های آلارم{% endblock %}
 {% block content %}
-<p class="muted">مثل ریمیت: برای بازه مبلغ، گیف و صدای جدا بگذار. مثلاً بالای ۱۰۰ هزار یک گیف خاص.</p>
+<p class="muted">برای هر بازه مبلغ، گیف و صدای جدا بگذار. بازه تنگ‌تر برنده است. اگر هیچ بازه‌ای نخورد، گیف پیش‌فرض صفحه هشدار پخش می‌شود.</p>
 <form class="card stack" method="post" enctype="multipart/form-data">
   {% csrf_token %}
   <div class="row">
-    <label>از مبلغ (تومان) <input type="number" name="min_toman" value="0" required></label>
+    <label>از مبلغ (تومان) <input type="number" name="min_toman" value="10000" required></label>
     <label>تا مبلغ (۰ = بی‌نهایت) <input type="number" name="max_toman" value="0"></label>
   </div>
   <label>نام شرط <input name="label" placeholder="مثلاً دونیت طلایی"></label>
@@ -20,13 +20,26 @@
       </select>
     </label>
   </div>
-  <label>گیف این بازه <input type="file" name="gif" accept="image/gif,image/webp,image/png"></label>
+  <label>گیف / وب‌ام این بازه <input type="file" name="gif" accept="image/gif,image/webp,image/png,image/jpeg,video/webm,video/mp4"></label>
   <label>صدای این بازه <input type="file" name="sound" accept="audio/*"></label>
   <button class="btn" type="submit">افزودن شرط</button>
 </form>
-<section class="card">
+
+<section class="card stack" style="margin-top:16px">
+  <h2>تست بازه</h2>
+  <p class="muted">مبلغ را بزن تا گیف همان بازه روی OBS پخش شود. Browser Source آلارم باید باز باشد.</p>
+  <form method="post" action="{% url 'panel_test' %}" class="copy-row">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="panel_conditions">
+    <input type="hidden" name="name" value="تست بازه">
+    <input type="number" name="amount" value="10000" min="1000">
+    <button class="btn" type="submit">نمایش هشدار این مبلغ</button>
+  </form>
+</section>
+
+<section class="card" style="margin-top:16px">
   <table>
-    <thead><tr><th>بازه</th><th>نام</th><th>مدت</th><th></th></tr></thead>
+    <thead><tr><th>بازه</th><th>نام</th><th>مدت</th><th>گیف</th><th></th></tr></thead>
     <tbody>
       {% for c in conditions %}
         <tr>
@@ -34,13 +47,22 @@
           <td>{{ c.label }}</td>
           <td>{{ c.duration }}ث</td>
           <td>
+            {% if c.gif %}
+              {% if ".webm" in c.gif.url or ".mp4" in c.gif.url %}
+                <video class="media-preview" src="{{ c.gif.url }}" muted loop autoplay playsinline></video>
+              {% else %}
+                <img class="media-preview" src="{{ c.gif.url }}" alt="">
+              {% endif %}
+            {% else %}—{% endif %}
+          </td>
+          <td>
             <form method="post" action="{% url 'panel_condition_delete' c.pk %}">{% csrf_token %}
               <button class="tiny" type="submit">حذف</button>
             </form>
           </td>
         </tr>
       {% empty %}
-        <tr><td colspan="4">شرطی نیست؛ آلارم پیش‌فرض برای همه مبالغ استفاده می‌شود.</td></tr>
+        <tr><td colspan="5">شرطی نیست؛ گیف پیش‌فرض هشدار برای همه مبالغ استفاده می‌شود.</td></tr>
       {% endfor %}
     </tbody>
   </table>

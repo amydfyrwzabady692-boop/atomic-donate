@@ -6,6 +6,18 @@ document.querySelectorAll(".chip[data-amount]").forEach((button) => {
     button.classList.add("on");
   });
 });
+
+const amountInput = document.querySelector('input[name="amount"]');
+if (amountInput) {
+  const mark = () => {
+    document.querySelectorAll(".chip[data-amount]").forEach((el) => {
+      el.classList.toggle("on", el.dataset.amount === String(amountInput.value));
+    });
+  };
+  amountInput.addEventListener("input", mark);
+  mark();
+}
+
 const donors = document.getElementById("donors-box");
 const toggle = document.getElementById("toggle-donors");
 if (toggle && donors) {

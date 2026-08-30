@@ -27,7 +27,11 @@
       <input type="file" name="alert_gif" accept="image/gif,image/webp,image/png,image/jpeg,video/webm">
     </label>
     {% if site.alert_gif %}
-      <img class="media-preview" src="{{ site.alert_gif.url }}" alt="gif">
+      {% if ".webm" in site.alert_gif.url or ".mp4" in site.alert_gif.url %}
+        <video class="media-preview" src="{{ site.alert_gif.url }}" muted loop autoplay playsinline></video>
+      {% else %}
+        <img class="media-preview" src="{{ site.alert_gif.url }}" alt="gif">
+      {% endif %}
       <label class="check"><input type="checkbox" name="clear_gif"> حذف گیف</label>
     {% endif %}
     <label>فایل صدا (mp3 / wav / ogg)

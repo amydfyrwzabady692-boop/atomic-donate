@@ -4,73 +4,90 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>درگاه حمایت مالی از {{ site.display_name }}</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;800&display=swap">
+  <title>حمایت از {{ site.display_name }}</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700;800&display=swap">
   <link rel="stylesheet" href="/static/css/donate.css">
   <style>:root { --accent: {{ site.accent_color }}; }</style>
 </head>
-<body class="theme-{{ site.gateway_theme }} reymit">
-  <main class="reymit-shell">
-    {% if site.show_goal_on_gateway %}
-    <aside class="goal-panel">
-      <p class="goal-kicker">هدف: {{ site.goal_title }}</p>
-      <div class="ring big" style="--p: {{ site.goal_percent }}"><b>{{ site.goal_percent }}٪<small>تکمیل شده</small></b></div>
-      <p class="goal-now">{{ site.goal_current|toman }}</p>
-      <p class="goal-from">از {{ site.goal_target_toman|toman }} تومان حمایت شده</p>
-    </aside>
-    {% endif %}
-
-    <section class="white-card">
-      <div class="who">
-        {% if site.avatar %}<img src="{{ site.avatar.url }}" alt="">{% else %}<span class="ava">{{ site.display_name|make_list|first }}</span>{% endif %}
+<body class="gate theme-{{ site.gateway_theme }}">
+  <div class="haze"></div>
+  <div class="ring"></div>
+  <main class="stage">
+    <section class="hero">
+      <img src="/static/img/omid-atomic.png" alt="Omid Atomic">
+      <div class="hero-veil"></div>
+    </section>
+    <article class="gate-card">
+      <header class="gate-who">
+        {% if site.avatar %}
+          <img src="{{ site.avatar.url }}" alt="">
+        {% else %}
+          <span class="ava">A</span>
+        {% endif %}
         <div>
+          <p class="kicker">ATOMIC DONATE</p>
           <h1>{{ site.display_name }}</h1>
-          <p>{{ site.page_title }}</p>
+          <p class="sub">{{ site.page_title }}</p>
         </div>
-      </div>
+      </header>
       {% if site.bio %}<p class="bio">{{ site.bio }}</p>{% endif %}
       <div class="socials">
         {% if site.instagram %}<a href="{{ site.instagram }}" target="_blank" rel="noreferrer">اینستاگرام</a>{% endif %}
         {% if site.telegram %}<a href="{{ site.telegram }}" target="_blank" rel="noreferrer">تلگرام</a>{% endif %}
         {% if site.youtube %}<a href="{{ site.youtube }}" target="_blank" rel="noreferrer">یوتیوب</a>{% endif %}
       </div>
+
+      {% if site.show_goal_on_gateway and site.goal_active %}
+      <section class="goal-strip">
+        <div class="goal-copy">
+          <span>{{ site.goal_title }}</span>
+          <b>{{ site.goal_percent }}٪</b>
+        </div>
+        <div class="goal-bar"><i style="width:{{ site.goal_percent }}%"></i></div>
+        <p>{{ site.goal_current|toman }} از {{ site.goal_target_toman|toman }} تومان</p>
+      </section>
+      {% endif %}
+
       {% if errors %}<ul class="errors">{% for error in errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+
       <form method="post" action="{% url 'pay' %}" class="form">
         {% csrf_token %}
-        <label>مبلغ به تومان ({{ site.min_amount_toman|toman }} - {{ site.max_amount_toman|toman }})
-          <input type="number" name="amount" min="{{ site.min_amount_toman }}" max="{{ site.max_amount_toman }}" required value="{{ form.amount|default:site.min_amount_toman }}" placeholder="مبلغ به تومان">
+        <label class="amount-label">مبلغ حمایت
+          <input type="number" name="amount" min="{{ min_amt }}" max="{{ max_amt }}" step="1000" required
+            value="{{ form.amount|default:min_amt }}" placeholder="{{ min_amt }}">
+          <small>{{ min_amt|toman }} تا {{ max_amt|toman }} تومان — سقف زرین‌پال</small>
         </label>
         <div class="chips">
           {% for amount in presets %}
-            {% if amount >= site.min_amount_toman and amount <= site.max_amount_toman %}
+            {% if amount >= min_amt and amount <= max_amt %}
               <button type="button" class="chip" data-amount="{{ amount }}">{{ amount|toman }}</button>
             {% endif %}
           {% endfor %}
         </div>
-        <label>نام شما <input name="name" maxlength="64" required value="{{ form.name|default:'' }}" placeholder="نام شما"></label>
-        <div class="split">
-          <label>ایمیل <input type="email" name="email" value="{{ form.email|default:'' }}" placeholder="ایمیل"></label>
-          <label>شماره همراه <input type="tel" name="mobile" value="{{ form.mobile|default:'' }}" placeholder="شماره همراه"></label>
-        </div>
-        <label>توضیحات <textarea name="message" maxlength="280" rows="3" placeholder="توضیحات">{{ form.message|default:'' }}</textarea></label>
-        <p class="label">ارسال شکلک همراه با حمایت</p>
+        <label>نام شما
+          <input name="name" maxlength="64" required value="{{ form.name|default:'' }}" placeholder="با چه اسمی حمایت می‌کنی؟">
+        </label>
+        <label>پیام برای استریم
+          <textarea name="message" maxlength="280" rows="3" placeholder="اختیاری — روی استریم خوانده می‌شود">{{ form.message|default:'' }}</textarea>
+        </label>
+        <p class="label">شکلک</p>
         <div class="emojis">
           {% for e in emojis %}
             <label class="emo"><input type="radio" name="emoji" value="{{ e }}" {% if forloop.first %}checked{% endif %}><span>{{ e }}</span></label>
           {% endfor %}
         </div>
-        <label class="switch"><input type="checkbox" name="show_name" checked> نام من را در پخش زنده نمایش بده</label>
-        <label class="switch"><input type="checkbox" name="show_message" checked> توضیحات را در پخش زنده نمایش بده</label>
-        <label class="switch"><input type="checkbox" name="show_in_list" checked> نام و مشخصات مرا در لیست حامیان نمایش بده</label>
+        <label class="switch"><input type="checkbox" name="show_name" checked> نامم روی استریم دیده شود</label>
+        <label class="switch"><input type="checkbox" name="show_message" checked> پیامم روی استریم خوانده شود</label>
+        <label class="switch"><input type="checkbox" name="show_in_list" checked> در لیست حامیان باشم</label>
         {% if site.require_terms %}
-        <label class="switch terms"><input type="checkbox" name="terms" required> قوانین مربوط به حمایت‌کنندگان را می‌پذیرم و تأیید می‌کنم این حمایت اختیاری است و در قبال آن محصولی دریافت نمی‌کنم.</label>
+        <label class="switch terms"><input type="checkbox" name="terms" required> این حمایت اختیاری است و در قبال آن محصولی دریافت نمی‌کنم.</label>
         {% endif %}
         <div class="actions">
-          {% if site.show_recent_on_gateway %}<button type="button" class="ghost" id="toggle-donors">لیست حامیان</button>{% endif %}
-          <button class="cta" type="submit">پرداخت</button>
+          {% if site.show_recent_on_gateway %}<button type="button" class="ghost" id="toggle-donors">حامیان</button>{% endif %}
+          <button class="cta" type="submit">پرداخت امن</button>
         </div>
       </form>
-    </section>
+    </article>
   </main>
   {% if site.show_recent_on_gateway %}
   <aside class="donor-drawer" id="donors-box" hidden>

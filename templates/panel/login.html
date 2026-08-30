@@ -12,6 +12,7 @@
     {% csrf_token %}
     <span class="logo">A</span>
     <h1>ورود به پنل</h1>
+    <p class="muted" style="margin:0 0 8px;font-size:13px">آدرس پنل: <code>https://donate.atomicshop.ir/panel/</code></p>
     {% if error %}<p class="flash">{{ error }}</p>{% endif %}
     <label>نام کاربری <input name="username" required autofocus></label>
     <label>رمز عبور <input type="password" name="password" required></label>

@@ -10,7 +10,10 @@ class Command(BaseCommand):
     help = "Create settings row and admin user from environment variables."
 
     def handle(self, *args, **options):
-        SiteSettings.load()
+        site = SiteSettings.load()
+        site.min_amount_toman = 10_000
+        site.max_amount_toman = 100_000_000
+        site.save(update_fields=["min_amount_toman", "max_amount_toman"])
         username = os.getenv("ADMIN_USERNAME", "admin")
         password = os.getenv("ADMIN_PASSWORD", "")
         User = get_user_model()

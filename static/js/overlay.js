@@ -30,7 +30,11 @@ function applyConfig(data) {
   const alert = document.getElementById("alert");
   const list = document.getElementById("list");
   const goal = document.getElementById("goal");
-  if (alert && cfg.alert_style) alert.className = `alert style-${cfg.alert_style}`;
+  if (alert && cfg.alert_style) {
+    const shown = alert.classList.contains("show");
+    alert.className = `alert style-${cfg.alert_style}`;
+    if (shown) alert.classList.add("show");
+  }
   if (list && cfg.list_style) list.className = `list-box style-${cfg.list_style}`;
   if (goal && cfg.goal_style) goal.className = `goal-box style-${cfg.goal_style}`;
   audio.volume = Math.max(0, Math.min(1, cfg.alert_volume || 0));
@@ -69,11 +73,19 @@ function applyWidgetTheme() {
   }
 }
 
+let wsLive = false;
+
 function connect() {
   const proto = location.protocol === "https:" ? "wss:" : "ws:";
   const socket = new WebSocket(`${proto}//${location.host}/ws/overlay/?key=${encodeURIComponent(key)}`);
+  socket.addEventListener("open", () => {
+    wsLive = true;
+  });
   socket.addEventListener("message", (event) => onPayload(JSON.parse(event.data)));
-  socket.addEventListener("close", () => setTimeout(connect, 1500));
+  socket.addEventListener("close", () => {
+    wsLive = false;
+    setTimeout(connect, 1500);
+  });
 }
 
 async function poll() {
@@ -106,7 +118,7 @@ function onPayload(data) {
     if (kind === "top" || kind === "label") renderLabel(data);
     if (kind === "total") renderTotal(data);
     if (kind === "queue") startQueue(data.donors || []);
-    if (data.latest && lastId && data.latest.id !== lastId && kind === "alert" && !data.latest.skip_stream) {
+    if (!wsLive && data.latest && lastId && data.latest.id !== lastId && kind === "alert" && !data.latest.skip_stream) {
       enqueue({ ...data, ...data.latest });
     }
     if (data.latest) lastId = data.latest.id;
@@ -140,6 +152,7 @@ function skipAlert() {
   }
   audio.pause();
   audio.removeAttribute("src");
+  hideAlertMedia();
 }
 
 function listItems(data) {
@@ -265,6 +278,58 @@ function enqueue(data) {
   if (!playing) playNext();
 }
 
+function isVideoUrl(url) {
+  return /\.(webm|mp4|ogg)(\?|$)/i.test(url || "");
+}
+
+function hideAlertMedia() {
+  const img = document.getElementById("gif");
+  const vid = document.getElementById("clip");
+  if (img) {
+    img.removeAttribute("src");
+    img.style.display = "none";
+  }
+  if (vid) {
+    vid.pause();
+    vid.removeAttribute("src");
+    vid.load();
+    vid.style.display = "none";
+  }
+}
+
+function showAlertMedia(url) {
+  const img = document.getElementById("gif");
+  const vid = document.getElementById("clip");
+  if (!url) {
+    hideAlertMedia();
+    return;
+  }
+  const stamped = `${url}${url.includes("?") ? "&" : "?"}t=${Date.now()}`;
+  if (isVideoUrl(url)) {
+    if (img) {
+      img.removeAttribute("src");
+      img.style.display = "none";
+    }
+    if (vid) {
+      vid.src = stamped;
+      vid.style.display = "block";
+      vid.muted = true;
+      vid.loop = true;
+      vid.play().catch(() => {});
+    }
+    return;
+  }
+  if (vid) {
+    vid.pause();
+    vid.removeAttribute("src");
+    vid.style.display = "none";
+  }
+  if (img) {
+    img.src = stamped;
+    img.style.display = "block";
+  }
+}
+
 function playNext() {
   const data = queue.shift();
   if (!data) {
@@ -274,27 +339,23 @@ function playNext() {
   playing = true;
   const gen = playGen;
   const box = document.getElementById("alert");
-  const gif = document.getElementById("gif");
   document.getElementById("who").textContent = data.name;
   document.getElementById("amount").textContent = `${formatToman(data.amount)} تومان`;
   document.getElementById("msg").textContent = data.message || "";
   document.getElementById("emoji").textContent = data.emoji || "💜";
-  const gifUrl = data.gif || cfg.gif;
-  if (gifUrl) {
-    gif.src = `${gifUrl}?t=${Date.now()}`;
-    gif.style.display = "block";
+  showAlertMedia(data.gif || cfg.gif);
+  if (data.alert_style) {
+    box.className = `alert style-${data.alert_style} show`;
   } else {
-    gif.removeAttribute("src");
-    gif.style.display = "none";
+    box.classList.add("show");
   }
-  if (data.alert_style) box.className = `alert style-${data.alert_style}`;
-  box.classList.add("show");
   playSound(data);
   if (data.tts ?? cfg.tts) speak(`${data.name} ${formatToman(data.amount)} تومان. ${data.message || ""}`);
   const ms = Math.max(3, Number(data.duration || cfg.duration || 8)) * 1000;
   hideTimer = setTimeout(() => {
     if (gen !== playGen) return;
     box.classList.remove("show");
+    hideAlertMedia();
     speechSynthesis.cancel();
     setTimeout(() => {
       if (gen !== playGen) return;
@@ -337,7 +398,10 @@ function playChime(volume) {
 function speak(text) {
   try {
     const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = "fa-IR";
+    const voices = speechSynthesis.getVoices();
+    const fa = voices.find((v) => (v.lang || "").toLowerCase().startsWith("fa"));
+    if (fa) utter.voice = fa;
+    utter.lang = fa?.lang || "fa-IR";
     utter.volume = Math.max(0, Math.min(1, cfg.tts_volume || 0.85));
     utter.rate = Number(cfg.tts_rate || 1);
     utter.pitch = Number(cfg.tts_pitch || 1);
@@ -346,6 +410,11 @@ function speak(text) {
   } catch (err) {
     /* ignore */
   }
+}
+
+if (typeof speechSynthesis !== "undefined") {
+  speechSynthesis.getVoices();
+  speechSynthesis.addEventListener("voiceschanged", () => speechSynthesis.getVoices());
 }
 
 function escapeHtml(value) {

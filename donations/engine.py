@@ -22,13 +22,19 @@ def in_period(qs, period: str):
 
 
 def match_condition(amount: int) -> AlertCondition | None:
-    for cond in AlertCondition.objects.order_by("-min_toman"):
+    """Pick the tightest amount range that contains this donation, like Reymit tiers."""
+    matches = []
+    for cond in AlertCondition.objects.all():
         if amount < cond.min_toman:
             continue
         if cond.max_toman and amount > cond.max_toman:
             continue
-        return cond
-    return None
+        span = cond.max_toman - cond.min_toman if cond.max_toman else 10**12
+        matches.append((span, -cond.min_toman, cond.pk, cond))
+    if not matches:
+        return None
+    matches.sort()
+    return matches[0][3]
 
 
 def censor_message(site: SiteSettings, text: str) -> tuple[str, bool]:

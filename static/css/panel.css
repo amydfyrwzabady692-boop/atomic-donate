@@ -336,6 +336,17 @@ th, td { text-align: right; padding: 12px 8px; border-bottom: 1px solid var(--li
   background: var(--fill, #7c4dff);
   border-radius: 999px;
 }
+.obs-guide h2 { margin: 0 0 10px; }
+.obs-steps {
+  margin: 0 0 14px;
+  padding: 0 18px 0 0;
+  color: var(--muted);
+  line-height: 1.9;
+  font-size: 14px;
+}
+.obs-steps a { color: var(--purple); font-weight: 700; }
+.obs-links .copy-row { margin: 6px 0; }
+.obs-links input { flex: 1; }
 .dock-mode { grid-template-columns: 1fr; padding: 0; }
 .dock-mode .side { display: none; }
 .dock-mode .shell { min-height: 100vh; border-radius: 0; }

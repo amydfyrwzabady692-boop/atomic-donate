@@ -16,7 +16,7 @@ from django.views.decorators.http import require_GET, require_POST
 
 from .models import AlertCondition, Donation, SiteSettings
 from .realtime import broadcast_donation, broadcast_settings, broadcast_skip, snapshot_payload
-from .zarinpal import ZarinPalError, payment_redirect_url, request_payment, verify_payment
+from .zarinpal import ZARINPAL_MAX_TOMAN, ZARINPAL_MIN_TOMAN, ZarinPalError, payment_redirect_url, request_payment, verify_payment
 
 
 def _overlay_ok(request) -> bool:
@@ -103,22 +103,21 @@ def _panel_ctx(**extra):
     return ctx
 
 
+def _amount_bounds(site):
+    min_amt = max(ZARINPAL_MIN_TOMAN, site.min_amount_toman)
+    stored_max = site.max_amount_toman
+    if stored_max == 50_000_000:
+        stored_max = ZARINPAL_MAX_TOMAN
+    max_amt = min(ZARINPAL_MAX_TOMAN, max(min_amt, stored_max))
+    return min_amt, max_amt
+
+
 def donate_page(request):
-    site = SiteSettings.load()
-    recent = Donation.objects.filter(status=Donation.Status.PAID, is_test=False, show_in_list=True)[: site.list_size]
-    return render(
-        request,
-        "donate.html",
-        {
-            "site": site,
-            "presets": site.presets(),
-            "recent": recent,
-            "emojis": site.emojis(),
-        },
-    )
+    return render(request, "donate.html", _donate_ctx(SiteSettings.load()))
 
 
 def _donate_ctx(site, errors=None, form=None):
+    min_amt, max_amt = _amount_bounds(site)
     return {
         "site": site,
         "presets": site.presets(),
@@ -126,6 +125,8 @@ def _donate_ctx(site, errors=None, form=None):
         "emojis": site.emojis(),
         "errors": errors or [],
         "form": form,
+        "min_amt": min_amt,
+        "max_amt": max_amt,
     }
 
 
@@ -134,22 +135,21 @@ def start_payment(request):
     site = SiteSettings.load()
     name = (request.POST.get("name") or "").strip()[:64]
     message = (request.POST.get("message") or "").strip()[:280]
-    mobile = (request.POST.get("mobile") or "").strip()[:15]
-    email = (request.POST.get("email") or "").strip()[:120]
     emoji = (request.POST.get("emoji") or "").strip()[:16]
     if emoji and emoji not in site.emojis():
         emoji = ""
     amount = _int(request.POST.get("amount"), 0)
+    min_amt, max_amt = _amount_bounds(site)
 
     errors = []
     if site.require_terms and request.POST.get("terms") != "on":
         errors.append("قوانین حمایت را بپذیر.")
     if len(name) < 2:
         errors.append("نام را وارد کن.")
-    if amount < site.min_amount_toman:
-        errors.append(f"حداقل مبلغ {site.min_amount_toman:,} تومان است.")
-    if amount > site.max_amount_toman:
-        errors.append(f"حداکثر مبلغ {site.max_amount_toman:,} تومان است.")
+    if amount < min_amt:
+        errors.append(f"حداقل مبلغ {min_amt:,} تومان است.")
+    if amount > max_amt:
+        errors.append(f"حداکثر مبلغ {max_amt:,} تومان است (سقف زرین‌پال).")
     if errors:
         return render(request, "donate.html", _donate_ctx(site, errors, request.POST), status=400)
 
@@ -158,8 +158,6 @@ def start_payment(request):
         amount_toman=amount,
         message=message,
         emoji=emoji,
-        mobile=mobile,
-        email=email,
         show_name=request.POST.get("show_name") == "on",
         show_message=request.POST.get("show_message") == "on",
         show_in_list=request.POST.get("show_in_list") == "on",
@@ -388,8 +386,11 @@ def panel_gateway(request):
             site.gateway_theme = theme
         site.show_goal_on_gateway = request.POST.get("show_goal_on_gateway") == "on"
         site.show_recent_on_gateway = request.POST.get("show_recent_on_gateway") == "on"
-        site.min_amount_toman = _int(request.POST.get("min_amount_toman"), site.min_amount_toman, 1000)
-        site.max_amount_toman = _int(request.POST.get("max_amount_toman"), site.max_amount_toman, site.min_amount_toman)
+        site.min_amount_toman = max(ZARINPAL_MIN_TOMAN, _int(request.POST.get("min_amount_toman"), site.min_amount_toman, ZARINPAL_MIN_TOMAN))
+        site.max_amount_toman = min(
+            ZARINPAL_MAX_TOMAN,
+            max(site.min_amount_toman, _int(request.POST.get("max_amount_toman"), site.max_amount_toman, site.min_amount_toman)),
+        )
         site.preset_amounts = (request.POST.get("preset_amounts") or site.preset_amounts)[:120]
         site.instagram = (request.POST.get("instagram") or "")[:160]
         site.telegram = (request.POST.get("telegram") or "")[:160]
@@ -403,7 +404,11 @@ def panel_gateway(request):
         site.save()
         messages.success(request, "ظاهر درگاه ذخیره شد.")
         return redirect("panel_gateway")
-    return render(request, "panel/gateway.html", _panel_ctx(themes=SiteSettings.GatewayTheme.choices))
+    return render(request, "panel/gateway.html", _panel_ctx(
+        themes=SiteSettings.GatewayTheme.choices,
+        zarinpal_min=ZARINPAL_MIN_TOMAN,
+        zarinpal_max=ZARINPAL_MAX_TOMAN,
+    ))
 
 
 @login_required
@@ -616,7 +621,7 @@ def _make_test(request):
 def panel_test(request):
     _make_test(request)
     messages.success(request, "آلارم تست روی OBS پخش شد.")
-    allowed = {"panel", "panel_alert", "panel_stream", "panel_donations", "panel_goal"}
+    allowed = {"panel", "panel_alert", "panel_stream", "panel_donations", "panel_goal", "panel_conditions"}
     next_url = request.POST.get("next") if request.POST.get("next") in allowed else "panel_alert"
     return redirect(next_url)
 
@@ -655,7 +660,7 @@ def panel_replay(request, pk):
     donation = get_object_or_404(Donation, pk=pk)
     broadcast_donation(donation)
     messages.success(request, f"آلارم {donation.name} دوباره پخش شد.")
-    allowed = {"panel", "panel_alert", "panel_stream", "panel_donations", "panel_goal"}
+    allowed = {"panel", "panel_alert", "panel_stream", "panel_donations", "panel_goal", "panel_conditions"}
     next_url = request.POST.get("next") if request.POST.get("next") in allowed else "panel_donations"
     return redirect(next_url)
 

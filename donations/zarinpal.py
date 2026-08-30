@@ -4,6 +4,10 @@ from django.urls import reverse
 import httpx
 
 
+ZARINPAL_MIN_TOMAN = 10_000
+ZARINPAL_MAX_TOMAN = 100_000_000
+
+
 class ZarinPalError(Exception):
     def __init__(self, message, code=None):
         super().__init__(message)
@@ -36,12 +40,7 @@ def request_payment(donation) -> str:
         "amount": toman_to_rial(donation.amount_toman),
         "callback_url": callback,
         "description": f"حمایت از {donation.name}"[:250],
-        "metadata": {},
     }
-    if donation.mobile:
-        payload["metadata"]["mobile"] = donation.mobile
-    if donation.email:
-        payload["metadata"]["email"] = donation.email
 
     response = httpx.post(
         f"{_api_root()}/pg/v4/payment/request.json",

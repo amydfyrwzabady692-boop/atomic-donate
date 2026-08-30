@@ -54,9 +54,11 @@ def overlay_config(site: SiteSettings) -> dict:
     }
 
 
-def donation_payload(donation: Donation, site: SiteSettings) -> dict:
-    payload = overlay_config(site)
-    payload.update(serialize_donation(donation, site))
+def attach_alert_media(payload: dict, donation: Donation, site: SiteSettings) -> dict:
+    payload["gif"] = _media(site.alert_gif)
+    payload["sound"] = _media(site.alert_sound)
+    payload["duration"] = site.alert_seconds
+    payload["alert_style"] = site.alert_style
     cond = match_condition(donation.amount_toman)
     if cond:
         if cond.gif:
@@ -66,6 +68,13 @@ def donation_payload(donation: Donation, site: SiteSettings) -> dict:
         payload["duration"] = cond.duration
         if cond.style:
             payload["alert_style"] = cond.style
+    return payload
+
+
+def donation_payload(donation: Donation, site: SiteSettings) -> dict:
+    payload = overlay_config(site)
+    payload.update(serialize_donation(donation, site))
+    attach_alert_media(payload, donation, site)
     payload["type"] = "donation"
     return payload
 
@@ -79,13 +88,16 @@ def snapshot_payload(site: SiteSettings) -> dict:
         .order_by("-paid_at", "-created_at")
         .first()
     )
+    latest = serialize_donation(latest_visible, site) if latest_visible else None
+    if latest_visible and latest:
+        attach_alert_media(latest, latest_visible, site)
     payload = overlay_config(site)
     payload.update(
         {
             "type": "snapshot",
             "donors": donors,
             "biggest": serialize_donation(biggest, site) if biggest else None,
-            "latest": serialize_donation(latest_visible, site) if latest_visible else None,
+            "latest": latest,
             "top": serialize_donation(biggest, site) if biggest else None,
         }
     )

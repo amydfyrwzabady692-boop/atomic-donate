@@ -70,7 +70,7 @@ class SiteSettings(models.Model):
     list_bg = models.CharField("رنگ پشت لیست", max_length=9, default="#ffffff")
     list_text = models.CharField("رنگ متن لیست", max_length=9, default="#2e1065")
     min_amount_toman = models.PositiveIntegerField("حداقل دونیت (تومان)", default=10_000)
-    max_amount_toman = models.PositiveIntegerField("حداکثر دونیت (تومان)", default=50_000_000)
+    max_amount_toman = models.PositiveIntegerField("حداکثر دونیت (تومان)", default=100_000_000)
 
     alert_seconds = models.PositiveIntegerField("مدت آلارم (ثانیه)", default=8, validators=[MinValueValidator(2), MaxValueValidator(30)])
     alert_volume = models.PositiveSmallIntegerField("صدای دونیت", default=80, validators=[MinValueValidator(0), MaxValueValidator(100)])

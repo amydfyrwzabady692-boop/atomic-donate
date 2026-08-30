@@ -17,9 +17,14 @@
       </select>
     </label>
     <div class="row">
-      <label>حداقل تومان <input type="number" name="min_amount_toman" value="{{ site.min_amount_toman }}"></label>
-      <label>حداکثر تومان <input type="number" name="max_amount_toman" value="{{ site.max_amount_toman }}"></label>
+      <label>حداقل تومان (دست‌کم ۱۰٬۰۰۰)
+        <input type="number" name="min_amount_toman" min="{{ zarinpal_min }}" value="{{ site.min_amount_toman }}">
+      </label>
+      <label>حداکثر تومان (سقف زرین‌پال {{ zarinpal_max|default:100000000 }})
+        <input type="number" name="max_amount_toman" max="100000000" value="{{ site.max_amount_toman }}">
+      </label>
     </div>
+    <p class="muted">ایمیل و شماره از حامی گرفته نمی‌شود. فقط نام، مبلغ و پیام.</p>
     <label>شکلک‌ها (با کاما) <input name="emoji_pack" value="{{ site.emoji_pack }}"></label>
     <label>مبالغ پیشنهادی (با کاما) <input name="preset_amounts" value="{{ site.preset_amounts }}"></label>
     <label>اینستاگرام <input name="instagram" value="{{ site.instagram }}" placeholder="https://"></label>

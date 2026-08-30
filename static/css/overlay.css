@@ -24,11 +24,13 @@ html, body {
 }
 .alert.show { opacity: 1; transform: translate(-50%, 0) scale(1); }
 .alert-gif {
-  max-width: 280px;
-  max-height: 210px;
+  max-width: 320px;
+  max-height: 240px;
   display: none;
   margin: 0 auto 8px;
   border-radius: 18px;
+  object-fit: contain;
+  background: transparent;
 }
 .alert-emoji { font-size: 34px; display: block; line-height: 1; }
 .alert-copy { padding: 14px 20px 16px; border-radius: 22px; }

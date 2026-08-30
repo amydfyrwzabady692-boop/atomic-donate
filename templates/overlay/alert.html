@@ -9,6 +9,7 @@
 <body class="overlay-body" data-kind="alert" data-key="{{ overlay_key }}" data-style="{{ site.alert_style }}" data-volume="{{ site.alert_volume }}" data-tts-volume="{{ site.tts_volume }}">
   <div id="alert" class="alert style-{{ site.alert_style }}" style="--alert-text:{{ site.alert_text }};--name-size:{{ site.alert_name_size }}px">
     <img id="gif" class="alert-gif" alt="">
+    <video id="clip" class="alert-gif" muted loop playsinline></video>
     <div class="alert-copy">
       <span id="emoji" class="alert-emoji"></span>
       <p id="who" class="alert-who"></p>
