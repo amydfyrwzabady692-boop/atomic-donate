@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>حمایت از {{ site.display_name }}</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700;800&display=swap">
-  <link rel="stylesheet" href="/static/css/donate.css?v=card">
+  <link rel="stylesheet" href="/static/css/donate.css?v=tidy2">
   <style>:root { --accent: {{ site.accent_color }}; }</style>
 </head>
 <body class="gate theme-{{ site.gateway_theme }}">
@@ -132,7 +132,7 @@
     <h3>لیست حامیان</h3>
     <ul>
       {% for d in recent %}
-        <li class="{{ d.list_tier }}"><b>{{ d.amount_toman|toman }}</b><span class="who">{{ d.emoji }} {{ d.name }}{% if d.message %} · {{ d.message }}{% endif %}</span></li>
+        <li class="{{ d.list_tier }}"><span class="who">{{ d.emoji }} {{ d.name }}{% if d.message %} · {{ d.message }}{% endif %}</span><b>{{ d.amount_toman|toman }}</b></li>
       {% empty %}
         <li>هنوز حمایتی نیست.</li>
       {% endfor %}

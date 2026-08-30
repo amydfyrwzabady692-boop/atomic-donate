@@ -392,13 +392,12 @@ th, td { text-align: right; padding: 12px 8px; border-bottom: 1px solid var(--li
   border: 1px solid var(--line);
 }
 .goal-live-preview .bar {
-  height: 36px;
-  background:
-    repeating-linear-gradient(-32deg, #ffffff10 0 8px, transparent 8px 16px),
-    #070708;
+  height: 18px;
+  background: #07090c;
   border-radius: 999px;
   overflow: hidden;
-  border: 3px solid #111;
+  border: 1px solid #ffffff18;
+  direction: rtl;
 }
 .goal-live-preview .bar i {
   display: block;

@@ -266,7 +266,7 @@ function itemHtml(d) {
   const msg = String(d.message || "").trim();
   const label = msg ? (name ? `${name} · ${msg}` : msg) : name;
   const clip = label.length > 22 ? " has-clip" : "";
-  return `<li class="${amountTier(d.amount)}${clip}"><span class="amt">${formatToman(d.amount)}</span><span class="who">${escapeHtml(label)}</span></li>`;
+  return `<li class="${amountTier(d.amount)}${clip}"><span class="who">${escapeHtml(label)}</span><span class="amt">${formatToman(d.amount)}</span></li>`;
 }
 
 function renderGoal(goal) {
@@ -289,7 +289,7 @@ function renderGoal(goal) {
   }
   if (fill) {
     fill.style.width = `${goal.percent || 0}%`;
-    fill.style.minWidth = (goal.percent || 0) > 0 ? "22px" : "0";
+    fill.style.minWidth = (goal.percent || 0) > 0 ? "10px" : "0";
   }
   if (ring) ring.style.setProperty("--p", goal.percent || 0);
   const box = document.getElementById("goal");
