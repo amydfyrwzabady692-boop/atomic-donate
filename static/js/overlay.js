@@ -279,12 +279,9 @@ function renderGoal(goal) {
   const ringPct = document.getElementById("goal-ring-pct");
   const currentEl = document.getElementById("goal-current");
   const targetEl = document.getElementById("goal-target");
-  const titleText = String(goal.title_tpl || "هدف: <NAME>").replace("<NAME>", goal.title || "هدف");
-  const details = String(goal.details_tpl || "<CURRENT> از <GOAL> تومان")
-    .replace("<CURRENT>", formatToman(goal.current))
-    .replace("<GOAL>", formatToman(goal.target));
+  const details = `${formatToman(goal.current)} از ${formatToman(goal.target)}`;
   if (title) {
-    title.textContent = titleText;
+    title.textContent = goal.title || "هدف";
     title.style.display = goal.show_title === false ? "none" : "";
   }
   if (fill) {
@@ -297,7 +294,7 @@ function renderGoal(goal) {
     box.style.setProperty("--p", goal.percent || 0);
     box.style.display = goal.active === false ? "none" : "";
   }
-  if (pct) pct.textContent = `${goal.percent || 0}٪`;
+  if (pct) pct.textContent = `${goal.percent || 0} ٪`;
   if (ringPct) ringPct.textContent = `${goal.percent || 0}٪`;
   if (meta) {
     meta.textContent = details;
@@ -387,9 +384,10 @@ function playNext() {
   const gen = playGen;
   const box = document.getElementById("alert");
   document.getElementById("who").textContent = data.name;
-  document.getElementById("amount").textContent = `${formatToman(data.amount)} تومان`;
+  document.getElementById("amount").textContent = `مبلغ ${formatToman(data.amount)} تومان حمایت کرد`;
   document.getElementById("msg").textContent = data.message || "";
-  document.getElementById("emoji").textContent = data.emoji || "⚡";
+  const emo = document.getElementById("emoji");
+  if (emo) emo.textContent = data.emoji || "";
   showAlertMedia(data.gif || cfg.gif);
   const hasMedia = Boolean(data.gif || cfg.gif);
   const style = data.alert_style || cfg.alert_style || "glass";

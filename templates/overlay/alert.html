@@ -4,26 +4,23 @@
   <meta charset="utf-8">
   <title>Alert</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@700;800&display=swap">
-  <link rel="stylesheet" href="/static/css/overlay.css?v=neon">
+  <link rel="stylesheet" href="/static/css/overlay.css?v=ref">
 </head>
 <body class="overlay-body" data-kind="alert" data-key="{{ overlay_key }}" data-style="{{ site.alert_style }}" data-volume="{{ site.alert_volume }}" data-tts-volume="{{ site.tts_volume }}">
   <div id="alert" class="alert style-{{ site.alert_style }}" style="--alert-text:{{ site.alert_text }};--name-size:{{ site.alert_name_size }}px">
-    <div class="halo"></div>
-    <span class="atom">
-      <i class="nucleus"></i>
-      <i class="path p1"><b class="dot"></b></i>
-      <i class="path p2"><b class="dot"></b></i>
-      <i class="path p3"></i>
-    </span>
     <img id="gif" class="alert-gif" alt="">
     <video id="clip" class="alert-gif" muted loop playsinline></video>
     <div class="alert-copy">
-      <span id="emoji" class="alert-emoji"></span>
-      <p id="amount" class="alert-amount"></p>
+      <div class="alert-pill">
+        <span class="alert-mark" aria-hidden="true"></span>
+        <span class="alert-brand">{{ site.display_name }}</span>
+      </div>
+      <span id="emoji" class="alert-emoji" hidden></span>
       <p id="who" class="alert-who"></p>
+      <p id="amount" class="alert-amount"></p>
       <p id="msg" class="alert-msg"></p>
     </div>
   </div>
-  <script src="/static/js/overlay.js?v=neon"></script>
+  <script src="/static/js/overlay.js?v=ref"></script>
 </body>
 </html>
