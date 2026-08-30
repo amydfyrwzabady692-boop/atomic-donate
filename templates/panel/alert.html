@@ -12,9 +12,10 @@
     </label>
     <label>رنگ نوشته <input type="color" name="alert_text" value="{{ site.alert_text }}"></label>
     <label>اندازه نام <input type="number" name="alert_name_size" min="12" max="48" value="{{ site.alert_name_size }}"></label>
-    <label>گیف / وب‌ام / تصویر آلارم
-      <input type="file" name="alert_gif" accept="image/gif,image/webp,image/png,image/jpeg,video/webm">
+    <label>گیف / ویدیو پیش‌فرض (اگر مرحله مبلغ نخورد)
+      <input type="file" name="alert_gif" accept="image/gif,image/webp,image/png,image/jpeg,video/webm,video/mp4">
     </label>
+    <p class="muted">برای گیف جدا بر اساس مبلغ برو به <a href="{% url 'panel_conditions' %}">گیف مرحله‌ای</a>. خود فایل را در OBS آپلود نکن؛ لینک آلارم را Browser Source کن.</p>
     {% if site.alert_gif %}
       {% if ".webm" in site.alert_gif.url or ".mp4" in site.alert_gif.url %}
         <video class="media-preview" src="{{ site.alert_gif.url }}" muted loop autoplay playsinline></video>

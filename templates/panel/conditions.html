@@ -1,16 +1,36 @@
 {% extends "panel/base.html" %}
 {% load money %}
-{% block kicker %}پنل کاربری / ابزارها / شرط مبلغ{% endblock %}
-{% block heading %}شرط‌های آلارم{% endblock %}
+{% block kicker %}پنل کاربری / ابزارها / گیف مرحله‌ای{% endblock %}
+{% block heading %}گیف دونیت بر اساس مبلغ{% endblock %}
 {% block content %}
-<p class="muted">برای هر بازه مبلغ، گیف و صدای جدا بگذار. بازه تنگ‌تر برنده است. اگر هیچ بازه‌ای نخورد، گیف پیش‌فرض صفحه هشدار پخش می‌شود.</p>
+{% include "panel/_overlay_bar.html" with bar_url=overlay_urls.alert size="۸۰۰×۴۵۰" %}
+
+<section class="card obs-guide" style="margin-bottom:16px">
+  <h2>چطور گیف را در OBS ببینم؟</h2>
+  <ol class="obs-steps">
+    <li>فایل گیف یا ویدیو (GIF / WebM / MP4) را در یکی از مرحله‌های پایین آپلود کن.</li>
+    <li>لینک آلارم را در OBS به‌صورت Browser Source بگذار — خود فایل را جدا در OBS نگذار.</li>
+    <li>اندازه پیشنهادی آلارم ۸۰۰×۴۵۰ است. Control Audio via OBS را روشن کن.</li>
+    <li>با «نمایش هشدار این مبلغ» تست کن. اگر Browser Source باز باشد، گیف همان مرحله پخش می‌شود.</li>
+    <li>هر وقت خواستی مرحله جدید بساز یا یکی را حذف کن. بازه تنگ‌تر برنده است.</li>
+  </ol>
+  <p class="muted">اگر مبلغی به هیچ مرحله‌ای نخورد، گیف پیش‌فرض صفحه <a href="{% url 'panel_alert' %}">هشدار رویداد</a> پخش می‌شود.</p>
+</section>
+
 <form class="card stack" method="post" enctype="multipart/form-data">
   {% csrf_token %}
-  <div class="row">
-    <label>از مبلغ (تومان) <input type="number" name="min_toman" value="10000" required></label>
-    <label>تا مبلغ (۰ = بی‌نهایت) <input type="number" name="max_toman" value="0"></label>
+  <h2>افزودن مرحله جدید</h2>
+  <p class="muted">سه مرحله پیشنهادی: ۰ تا ۲۰۰ هزار / ۲۰۰ هزار تا یک میلیون / یک میلیون به بالا. می‌توانی عددها را عوض کنی.</p>
+  <div class="actions" style="margin-bottom:8px">
+    <button type="button" class="tiny fill-tier" data-min="0" data-max="199999" data-label="۰ تا ۲۰۰ هزار">خاکستری ۰–۲۰۰هزار</button>
+    <button type="button" class="tiny fill-tier" data-min="200000" data-max="999999" data-label="۲۰۰ هزار تا یک میلیون">آبی ۲۰۰هزار–۱میلیون</button>
+    <button type="button" class="tiny fill-tier" data-min="1000000" data-max="0" data-label="یک میلیون به بالا">قرمز ۱میلیون+</button>
   </div>
-  <label>نام شرط <input name="label" placeholder="مثلاً دونیت طلایی"></label>
+  <div class="row">
+    <label>از مبلغ (تومان) <input type="number" name="min_toman" id="min_toman" value="0" required></label>
+    <label>تا مبلغ (۰ = بی‌نهایت) <input type="number" name="max_toman" id="max_toman" value="199999"></label>
+  </div>
+  <label>نام مرحله <input name="label" id="tier_label" value="۰ تا ۲۰۰ هزار"></label>
   <div class="row">
     <label>مدت ثانیه <input type="number" name="duration" value="{{ site.alert_seconds }}"></label>
     <label>ظاهر
@@ -20,51 +40,65 @@
       </select>
     </label>
   </div>
-  <label>گیف / وب‌ام این بازه <input type="file" name="gif" accept="image/gif,image/webp,image/png,image/jpeg,video/webm,video/mp4"></label>
-  <label>صدای این بازه <input type="file" name="sound" accept="audio/*"></label>
-  <button class="btn" type="submit">افزودن شرط</button>
+  <label>گیف / ویدیو این مرحله <input type="file" name="gif" accept="image/gif,image/webp,image/png,image/jpeg,video/webm,video/mp4"></label>
+  <label>صدای این مرحله (اختیاری) <input type="file" name="sound" accept="audio/*"></label>
+  <button class="btn" type="submit">افزودن مرحله</button>
 </form>
 
 <section class="card stack" style="margin-top:16px">
-  <h2>تست بازه</h2>
-  <p class="muted">مبلغ را بزن تا گیف همان بازه روی OBS پخش شود. Browser Source آلارم باید باز باشد.</p>
+  <h2>تست روی OBS</h2>
   <form method="post" action="{% url 'panel_test' %}" class="copy-row">
     {% csrf_token %}
     <input type="hidden" name="next" value="panel_conditions">
-    <input type="hidden" name="name" value="تست بازه">
-    <input type="number" name="amount" value="10000" min="1000">
+    <input type="hidden" name="name" value="تست مرحله">
+    <input type="number" name="amount" value="200000" min="1000">
     <button class="btn" type="submit">نمایش هشدار این مبلغ</button>
   </form>
 </section>
 
-<section class="card" style="margin-top:16px">
-  <table>
-    <thead><tr><th>بازه</th><th>نام</th><th>مدت</th><th>گیف</th><th></th></tr></thead>
-    <tbody>
-      {% for c in conditions %}
-        <tr>
-          <td>{{ c.min_toman|toman }} — {% if c.max_toman %}{{ c.max_toman|toman }}{% else %}∞{% endif %}</td>
-          <td>{{ c.label }}</td>
-          <td>{{ c.duration }}ث</td>
-          <td>
-            {% if c.gif %}
-              {% if ".webm" in c.gif.url or ".mp4" in c.gif.url %}
-                <video class="media-preview" src="{{ c.gif.url }}" muted loop autoplay playsinline></video>
-              {% else %}
-                <img class="media-preview" src="{{ c.gif.url }}" alt="">
-              {% endif %}
-            {% else %}—{% endif %}
-          </td>
-          <td>
-            <form method="post" action="{% url 'panel_condition_delete' c.pk %}">{% csrf_token %}
-              <button class="tiny" type="submit">حذف</button>
-            </form>
-          </td>
-        </tr>
-      {% empty %}
-        <tr><td colspan="5">شرطی نیست؛ گیف پیش‌فرض هشدار برای همه مبالغ استفاده می‌شود.</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<section class="stack" style="margin-top:16px;gap:14px">
+  {% for c in conditions %}
+    <form class="card stack" method="post" action="{% url 'panel_condition_update' c.pk %}" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="row-head">
+        <h2>{{ c.label|default:"بدون نام" }}</h2>
+        <button class="tiny" form="del-{{ c.pk }}" type="submit">حذف مرحله</button>
+      </div>
+      <div class="row">
+        <label>از <input type="number" name="min_toman" value="{{ c.min_toman }}"></label>
+        <label>تا (۰=∞) <input type="number" name="max_toman" value="{{ c.max_toman }}"></label>
+        <label>ثانیه <input type="number" name="duration" value="{{ c.duration }}"></label>
+      </div>
+      <label>نام <input name="label" value="{{ c.label }}"></label>
+      {% if c.gif %}
+        {% if ".webm" in c.gif.url or ".mp4" in c.gif.url %}
+          <video class="media-preview" src="{{ c.gif.url }}" muted loop autoplay playsinline></video>
+        {% else %}
+          <img class="media-preview" src="{{ c.gif.url }}" alt="">
+        {% endif %}
+        <p class="muted" style="margin:0">لینک فایل: <code>{{ c.gif.url }}</code> — این را در OBS نگذار؛ لینک آلارم را بگذار.</p>
+        <label class="check"><input type="checkbox" name="clear_gif"> حذف گیف فعلی</label>
+      {% endif %}
+      <label>جایگزینی گیف / ویدیو <input type="file" name="gif" accept="image/gif,image/webp,image/png,image/jpeg,video/webm,video/mp4"></label>
+      {% if c.sound %}
+        <audio controls src="{{ c.sound.url }}"></audio>
+        <label class="check"><input type="checkbox" name="clear_sound"> حذف صدا</label>
+      {% endif %}
+      <label>جایگزینی صدا <input type="file" name="sound" accept="audio/*"></label>
+      <button class="btn" type="submit">ذخیره این مرحله</button>
+    </form>
+    <form id="del-{{ c.pk }}" method="post" action="{% url 'panel_condition_delete' c.pk %}">{% csrf_token %}</form>
+  {% empty %}
+    <div class="card"><p class="muted">مرحله‌ای نیست.</p></div>
+  {% endfor %}
 </section>
+<script>
+document.querySelectorAll(".fill-tier").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    document.getElementById("min_toman").value = btn.dataset.min;
+    document.getElementById("max_toman").value = btn.dataset.max;
+    document.getElementById("tier_label").value = btn.dataset.label;
+  });
+});
+</script>
 {% endblock %}

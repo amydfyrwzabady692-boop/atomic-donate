@@ -250,9 +250,12 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--accent); }
   color: #fff;
   text-shadow: 0 1px 3px #0008;
   overflow: hidden;
-  background: linear-gradient(90deg, #38bdf8, #0369a1);
+  background: linear-gradient(90deg, #9ca3af, #111827);
   box-shadow: 0 8px 16px #0006;
 }
+.donor-drawer li.tier-ash { background: linear-gradient(90deg, #9ca3af, #111827); }
+.donor-drawer li.tier-ice { background: linear-gradient(90deg, #38bdf8, #0b1220); }
+.donor-drawer li.tier-hot { background: linear-gradient(90deg, #ef4444, #111); }
 .donor-drawer li:last-child { margin-bottom: 0; }
 .donor-drawer b {
   flex: 0 0 auto;

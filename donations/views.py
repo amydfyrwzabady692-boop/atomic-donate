@@ -14,6 +14,7 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 
+from .engine import ensure_default_alert_tiers
 from .models import AlertCondition, Donation, SiteSettings
 from .realtime import broadcast_donation, broadcast_settings, broadcast_skip, snapshot_payload
 from .zarinpal import ZARINPAL_MAX_TOMAN, ZARINPAL_MIN_TOMAN, ZarinPalError, payment_redirect_url, request_payment, verify_payment
@@ -692,6 +693,7 @@ def dock_volume(request):
 @login_required
 def panel_conditions(request):
     site = SiteSettings.load()
+    ensure_default_alert_tiers()
     if request.method == "POST":
         AlertCondition.objects.create(
             min_toman=_int(request.POST.get("min_toman"), 0),
@@ -702,13 +704,37 @@ def panel_conditions(request):
             gif=request.FILES.get("gif"),
             sound=request.FILES.get("sound"),
         )
-        messages.success(request, "شرط آلارم اضافه شد. دونیت داخل این بازه گیف/صدای خودش را می‌گیرد.")
+        messages.success(request, "مرحله اضافه شد. گیف همین بازه روی آلارم OBS پخش می‌شود.")
         return redirect("panel_conditions")
     return render(
         request,
         "panel/conditions.html",
         _panel_ctx(conditions=AlertCondition.objects.all(), alert_styles=SiteSettings.AlertStyle.choices),
     )
+
+
+@login_required
+@require_POST
+def panel_condition_update(request, pk):
+    site = SiteSettings.load()
+    cond = get_object_or_404(AlertCondition, pk=pk)
+    cond.min_toman = _int(request.POST.get("min_toman"), cond.min_toman)
+    cond.max_toman = _int(request.POST.get("max_toman"), cond.max_toman)
+    cond.label = (request.POST.get("label") or cond.label)[:40]
+    cond.duration = _int(request.POST.get("duration"), cond.duration, 2, 30)
+    cond.style = request.POST.get("style") or ""
+    if request.FILES.get("gif"):
+        cond.gif = request.FILES["gif"]
+    if request.FILES.get("sound"):
+        cond.sound = request.FILES["sound"]
+    if request.POST.get("clear_gif"):
+        cond.gif = None
+    if request.POST.get("clear_sound"):
+        cond.sound = None
+    cond.save()
+    broadcast_settings(site)
+    messages.success(request, "مرحله ذخیره شد. با «نمایش هشدار» همان مبلغ را روی OBS تست کن.")
+    return redirect("panel_conditions")
 
 
 @login_required

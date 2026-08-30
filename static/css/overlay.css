@@ -86,35 +86,41 @@ html, body {
   --name-size: 22px;
   position: absolute;
   left: 50%;
-  bottom: 36px;
+  bottom: 28px;
   transform: translate(-50%, 28px) scale(.94);
   opacity: 0;
-  min-width: 380px;
-  max-width: 560px;
+  min-width: 280px;
+  max-width: 420px;
   text-align: center;
   filter: drop-shadow(0 22px 40px #000a);
   transition: .45s cubic-bezier(.22, 1, .36, 1);
 }
 .alert.show { opacity: 1; transform: translate(-50%, 0) scale(1); }
+.alert.has-media .atom,
+.alert.has-media .halo { display: none; }
 .alert-gif {
-  max-width: 320px;
-  max-height: 240px;
+  max-width: 400px;
+  max-height: 260px;
   display: none;
-  margin: 0 auto 8px;
-  border-radius: 18px;
+  margin: 0 auto 10px;
+  border-radius: 22px;
   object-fit: contain;
-  background: transparent;
-}
-.alert-emoji { font-size: 34px; display: block; line-height: 1; }
-.alert-copy {
-  padding: 16px 24px 18px;
-  border-radius: 30px;
-  background:
-    radial-gradient(120px 60px at 80% 0%, #7dd3fc22, transparent 60%),
-    linear-gradient(160deg, #1a1a1e, #070708 55%, #111114);
-  border: 1px solid #cfd3d8aa;
+  background: #050506;
+  border: 1px solid #7dd3fc77;
   outline: 4px solid #111;
-  box-shadow: 0 18px 44px #000a, inset 0 1px 0 #ffffff40, 0 0 22px #7dd3fc33;
+  box-shadow: 0 16px 36px #000a, 0 0 28px #7dd3fc33;
+}
+.alert-emoji { font-size: 30px; display: block; line-height: 1; }
+.alert.has-media .alert-emoji { font-size: 22px; }
+.alert-copy {
+  padding: 14px 22px 16px;
+  border-radius: 22px;
+  background:
+    radial-gradient(140px 70px at 80% 0%, #7dd3fc28, transparent 62%),
+    linear-gradient(165deg, #1c2430, #07080a 58%, #0b1220);
+  border: 1px solid #7dd3fc55;
+  outline: 4px solid #111;
+  box-shadow: 0 18px 44px #000a, inset 0 1px 0 #ffffff40, 0 0 22px #7dd3fc22;
   position: relative;
   overflow: hidden;
 }
@@ -136,11 +142,18 @@ html, body {
   margin: 2px 0 6px;
   font-weight: 800;
   color: #e0f2fe;
-  font-size: 22px;
+  font-size: 26px;
   font-variant-numeric: tabular-nums;
-  text-shadow: 0 0 12px #38bdf866;
+  text-shadow: 0 0 14px #38bdf888;
 }
-.alert-msg { margin: 0; opacity: .9; color: var(--alert-text); font-size: 15px; }
+.alert-msg {
+  margin: 0;
+  opacity: .92;
+  color: var(--alert-text);
+  font-size: 15px;
+  max-height: 2.8em;
+  overflow: hidden;
+}
 
 .alert.style-classic .alert-copy,
 .alert.style-neon .alert-copy {
@@ -308,10 +321,13 @@ html, body {
   border-radius: 12px;
 }
 .list-box .emo { font-style: normal; margin-left: 6px; }
-.list-box li.tier-core { background: linear-gradient(90deg, #64748b, #334155); }
-.list-box li.tier-spark { background: linear-gradient(90deg, #0ea5e9, #0369a1); }
-.list-box li.tier-nova { background: linear-gradient(90deg, #38bdf8, #075985); }
-.list-box li.tier-atomic { background: linear-gradient(90deg, #7dd3fc, #0284c7); }
+.list-box li.tier-ash { background: linear-gradient(90deg, #9ca3af, #111827); }
+.list-box li.tier-ice { background: linear-gradient(90deg, #38bdf8, #0b1220); }
+.list-box li.tier-hot { background: linear-gradient(90deg, #ef4444, #111); }
+.list-box li.tier-core { background: linear-gradient(90deg, #9ca3af, #111827); }
+.list-box li.tier-spark,
+.list-box li.tier-nova { background: linear-gradient(90deg, #38bdf8, #0b1220); }
+.list-box li.tier-atomic { background: linear-gradient(90deg, #ef4444, #111); }
 .list-box.style-stack {
   background: var(--widget-bg, #121218ee);
   border: 1px solid #ffffff16;
@@ -347,8 +363,8 @@ html, body {
 @keyframes slide { from { transform: translateX(0); } to { transform: translateX(40%); } }
 
 .goal-box {
-  width: min(560px, 94vw);
-  padding: 10px 10px 28px;
+  width: min(360px, 92vw);
+  padding: 8px 8px 24px;
   background: transparent !important;
   border: 0 !important;
   box-shadow: none !important;
@@ -365,19 +381,19 @@ html, body {
 }
 .goal-title {
   margin: 0;
-  font-size: 17px;
+  font-size: 14px;
   font-weight: 800;
   color: #fff;
   text-shadow: 0 2px 8px #000c;
 }
 .goal-pct {
   color: #e0f2fe;
-  font-size: 22px;
+  font-size: 18px;
   text-shadow: 0 2px 8px #000c;
   font-variant-numeric: tabular-nums;
 }
 .goal-track {
-  height: 44px;
+  height: 32px;
   background:
     radial-gradient(circle at 12% 50%, #3b82f622, transparent 42%),
     repeating-linear-gradient(-32deg, #ffffff10 0 8px, transparent 8px 16px),
@@ -394,8 +410,8 @@ html, body {
   position: absolute;
   top: 50%;
   right: 7px;
-  width: 16px;
-  height: 16px;
+  width: 12px;
+  height: 12px;
   transform: translateY(-50%);
   border-radius: 50%;
   background: radial-gradient(circle at 35% 30%, #fff, #e0f2fe 50%, #7dd3fc);

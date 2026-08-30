@@ -6,6 +6,28 @@ from django.utils import timezone
 from .models import AlertCondition, Donation, SiteSettings
 
 
+DEFAULT_ALERT_TIERS = [
+    {"min_toman": 0, "max_toman": 199_999, "label": "۰ تا ۲۰۰ هزار", "duration": 8},
+    {"min_toman": 200_000, "max_toman": 999_999, "label": "۲۰۰ هزار تا یک میلیون", "duration": 8},
+    {"min_toman": 1_000_000, "max_toman": 0, "label": "یک میلیون به بالا", "duration": 10},
+]
+
+
+def ensure_default_alert_tiers():
+    if AlertCondition.objects.exists():
+        return
+    AlertCondition.objects.bulk_create([AlertCondition(**row) for row in DEFAULT_ALERT_TIERS])
+
+
+def list_tier(amount: int) -> str:
+    n = int(amount or 0)
+    if n >= 1_000_000:
+        return "tier-hot"
+    if n >= 200_000:
+        return "tier-ice"
+    return "tier-ash"
+
+
 def paid_qs():
     return Donation.objects.filter(status=Donation.Status.PAID, is_test=False, show_in_list=True)
 

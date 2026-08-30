@@ -188,5 +188,13 @@ class Donation(models.Model):
         verbose_name = "حمایت"
         verbose_name_plural = "حمایت‌ها"
 
+    def list_tier(self):
+        n = int(self.amount_toman or 0)
+        if n >= 1_000_000:
+            return "tier-hot"
+        if n >= 200_000:
+            return "tier-ice"
+        return "tier-ash"
+
     def __str__(self):
         return f"{self.name} — {self.amount_toman:,}"

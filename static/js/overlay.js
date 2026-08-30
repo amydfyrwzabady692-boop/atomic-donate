@@ -168,7 +168,7 @@ function skipAlert() {
   playing = false;
   clearTimeout(hideTimer);
   const box = document.getElementById("alert");
-  if (box) box.classList.remove("show");
+  if (box) box.className = `alert style-${cfg.alert_style || "glass"}`;
   try {
     speechSynthesis.cancel();
   } catch (err) {
@@ -256,10 +256,9 @@ function prependDonor(data) {
 
 function amountTier(amount) {
   const n = Number(amount || 0);
-  if (n >= 500000) return "tier-atomic";
-  if (n >= 100000) return "tier-nova";
-  if (n >= 20000) return "tier-spark";
-  return "tier-core";
+  if (n >= 1_000_000) return "tier-hot";
+  if (n >= 200_000) return "tier-ice";
+  return "tier-ash";
 }
 
 function itemHtml(d) {
@@ -392,11 +391,9 @@ function playNext() {
   document.getElementById("msg").textContent = data.message || "";
   document.getElementById("emoji").textContent = data.emoji || "⚡";
   showAlertMedia(data.gif || cfg.gif);
-  if (data.alert_style) {
-    box.className = `alert style-${data.alert_style} show`;
-  } else {
-    box.classList.add("show");
-  }
+  const hasMedia = Boolean(data.gif || cfg.gif);
+  const style = data.alert_style || cfg.alert_style || "glass";
+  box.className = `alert style-${style} show${hasMedia ? " has-media" : ""}`;
   playSound(data);
   if (data.tts ?? cfg.tts) speak(`${data.name} ${formatToman(data.amount)} تومان. ${data.message || ""}`);
   const ms = Math.max(3, Number(data.duration || cfg.duration || 8)) * 1000;

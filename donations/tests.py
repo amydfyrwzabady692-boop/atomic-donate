@@ -1,6 +1,6 @@
 from django.test import Client, TestCase
 
-from donations.engine import match_condition
+from donations.engine import list_tier, match_condition
 from donations.models import AlertCondition, SiteSettings
 
 
@@ -26,6 +26,18 @@ class MatchConditionTests(TestCase):
         self.assertEqual(match_condition(20_000).label, "mid")
         self.assertEqual(match_condition(30_000).label, "mid")
         self.assertIsNone(match_condition(30_001))
+
+    def test_three_amount_stages(self):
+        AlertCondition.objects.create(min_toman=0, max_toman=199_999, label="ash")
+        AlertCondition.objects.create(min_toman=200_000, max_toman=999_999, label="ice")
+        AlertCondition.objects.create(min_toman=1_000_000, max_toman=0, label="hot")
+        self.assertEqual(match_condition(10_000).label, "ash")
+        self.assertEqual(match_condition(200_000).label, "ice")
+        self.assertEqual(match_condition(999_999).label, "ice")
+        self.assertEqual(match_condition(1_000_000).label, "hot")
+        self.assertEqual(list_tier(10_000), "tier-ash")
+        self.assertEqual(list_tier(200_000), "tier-ice")
+        self.assertEqual(list_tier(1_000_000), "tier-hot")
 
 
 class DonatePageTests(TestCase):

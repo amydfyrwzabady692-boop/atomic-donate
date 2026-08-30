@@ -94,7 +94,7 @@
     <h3>لیست حامیان</h3>
     <ul>
       {% for d in recent %}
-        <li><b>{{ d.amount_toman|toman }}</b><span class="who">{{ d.emoji }} {{ d.name }}{% if d.message %} · {{ d.message }}{% endif %}</span></li>
+        <li class="{{ d.list_tier }}"><b>{{ d.amount_toman|toman }}</b><span class="who">{{ d.emoji }} {{ d.name }}{% if d.message %} · {{ d.message }}{% endif %}</span></li>
       {% empty %}
         <li>هنوز حمایتی نیست.</li>
       {% endfor %}

@@ -27,6 +27,7 @@ urlpatterns = [
     path("panel/tools/<slug:slug>/", views.panel_widget, name="panel_widget"),
     path("panel/files/", views.panel_files, name="panel_files"),
     path("panel/conditions/", views.panel_conditions, name="panel_conditions"),
+    path("panel/conditions/<int:pk>/update/", views.panel_condition_update, name="panel_condition_update"),
     path("panel/conditions/<int:pk>/delete/", views.panel_condition_delete, name="panel_condition_delete"),
     path("panel/censor/", views.panel_censor, name="panel_censor"),
     path("panel/recap/", views.panel_recap, name="panel_recap"),
