@@ -62,6 +62,8 @@ class DonatePageTests(TestCase):
         self.assertIn("امید فیروزآبادی", body)
         self.assertIn("سامان", body)
         self.assertIn("ارسال رسید", body)
+        self.assertIn("کلیک کنید یا فایل را رها کنید", body)
+        self.assertIn("۵ مگابایت", body)
         self.assertIn('name="method"', body)
         self.assertIn('value="zarinpal"', body)
         self.assertIn("checked", body)

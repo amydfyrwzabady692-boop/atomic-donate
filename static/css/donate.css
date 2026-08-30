@@ -323,10 +323,73 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--accent); }
   cursor: pointer;
 }
 .copy-card:hover { background: #082f49; }
-.receipt-box small { color: var(--muted); }
-.receipt-box input[type="file"] {
-  padding: 10px;
-  background: #08080b;
+.receipt-drop {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  margin-top: 2px;
+  padding: 18px 16px 16px;
+  border-radius: 18px;
+  border: 1px dashed color-mix(in srgb, var(--accent) 45%, #ffffff22);
+  background: color-mix(in srgb, var(--accent) 8%, #08080bcc);
+  color: var(--ink);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color .15s, background .15s, box-shadow .15s;
+}
+.receipt-drop:hover,
+.receipt-drop.drag {
+  border-style: solid;
+  border-color: color-mix(in srgb, var(--accent) 80%, transparent);
+  background: color-mix(in srgb, var(--accent) 16%, #08080b);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+.receipt-drop.has-file {
+  border-style: solid;
+  border-color: #7dd3fc88;
+  background: #082f4922;
+}
+.receipt-drop.bad {
+  border-color: #fb7185;
+  background: #3d102022;
+}
+.receipt-drop input[type="file"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+.receipt-icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  color: #7dd3fc;
+  background: #0b1220aa;
+  border: 1px solid #7dd3fc33;
+  box-shadow: 0 8px 20px #0006;
+}
+.receipt-icon svg { width: 28px; height: 28px; }
+.receipt-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #e0f2fe;
+}
+.receipt-drop small {
+  color: var(--muted);
+  font-size: 12px;
+}
+.receipt-name {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 700;
+  color: #7dd3fc;
 }
 
 .donor-drawer {

@@ -60,3 +60,56 @@ if (copyBtn) {
     }
   });
 }
+
+const drop = document.getElementById("receipt-drop");
+const receiptFile = document.getElementById("receipt-file");
+const receiptName = document.getElementById("receipt-name");
+const RECEIPT_MAX = 5 * 1024 * 1024;
+
+function showReceipt(file) {
+  if (!drop || !receiptFile) return;
+  drop.classList.remove("bad", "has-file", "drag");
+  if (receiptName) {
+    receiptName.hidden = true;
+    receiptName.textContent = "";
+  }
+  if (!file) return;
+  if (file.size > RECEIPT_MAX) {
+    drop.classList.add("bad");
+    if (receiptName) {
+      receiptName.hidden = false;
+      receiptName.textContent = "حجم فایل بیشتر از ۵ مگابایت است";
+    }
+    receiptFile.value = "";
+    return;
+  }
+  drop.classList.add("has-file");
+  if (receiptName) {
+    receiptName.hidden = false;
+    receiptName.textContent = file.name;
+  }
+}
+
+if (drop && receiptFile) {
+  receiptFile.addEventListener("change", () => showReceipt(receiptFile.files[0]));
+  ["dragenter", "dragover"].forEach((type) => {
+    drop.addEventListener(type, (event) => {
+      event.preventDefault();
+      drop.classList.add("drag");
+    });
+  });
+  ["dragleave", "drop"].forEach((type) => {
+    drop.addEventListener(type, (event) => {
+      event.preventDefault();
+      drop.classList.remove("drag");
+    });
+  });
+  drop.addEventListener("drop", (event) => {
+    const file = event.dataTransfer && event.dataTransfer.files[0];
+    if (!file) return;
+    const transfer = new DataTransfer();
+    transfer.items.add(file);
+    receiptFile.files = transfer.files;
+    showReceipt(file);
+  });
+}

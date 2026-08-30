@@ -291,7 +291,7 @@ function itemHtml(d) {
   const name = String(d.name || "").trim();
   const msg = String(d.message || "").trim();
   const label = msg ? (name ? `${name} · ${msg}` : msg) : name;
-  const clip = label.length > 22 ? " has-clip" : "";
+  const clip = label.length > 16 ? " has-clip" : "";
   return `<li class="${amountTier(d.amount)}${clip}"><span class="who">${escapeHtml(label)}</span><span class="amt">${formatToman(d.amount)}</span></li>`;
 }
 

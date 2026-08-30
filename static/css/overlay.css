@@ -261,6 +261,11 @@ body[data-kind="alert"] {
   width: 340px;
   min-height: 0;
 }
+body[data-kind="list"] .list-box.style-cards,
+body[data-kind="list"] .list-box.style-pills {
+  width: 200px;
+  padding: 2px;
+}
 .list-box.style-cards h2,
 .list-box.style-pills h2 { display: none; }
 .list-box h2, .goal-title, .kicker {
@@ -340,6 +345,55 @@ body[data-kind="alert"] {
 .list-box li.tier-spark,
 .list-box li.tier-nova { background: linear-gradient(90deg, #22d3ee, #1d4ed8); box-shadow: 0 0 18px #22d3ee88; }
 .list-box li.tier-atomic { background: linear-gradient(90deg, #e879f9, #6d28d9); box-shadow: 0 0 18px #c026d366; }
+body[data-kind="list"] .list-box li {
+  height: 28px;
+  min-height: 28px;
+  max-height: 28px;
+  margin-bottom: 5px;
+  padding: 0 2px 0 7px;
+  background: rgba(8, 12, 20, 0.28);
+  border: 1px solid rgba(125, 211, 252, 0.22);
+  box-shadow: 0 0 10px rgba(34, 211, 238, 0.1);
+  backdrop-filter: blur(10px);
+  color: #7dd3fc;
+}
+body[data-kind="list"] .list-box .who,
+body[data-kind="list"] .list-box .amt {
+  color: inherit;
+  text-shadow: 0 1px 8px #000c;
+}
+body[data-kind="list"] .list-box .who {
+  font-size: 11px;
+  padding: 0 6px 0 2px;
+}
+body[data-kind="list"] .list-box .amt {
+  font-size: 11px;
+  padding: 3px 8px;
+  background: rgba(0, 0, 0, 0.22);
+  box-shadow: none;
+}
+body[data-kind="list"] .list-box li.tier-ash,
+body[data-kind="list"] .list-box li.tier-core {
+  color: #67e8f9;
+  background: rgba(8, 16, 24, 0.28);
+  border-color: rgba(103, 232, 249, 0.28);
+  box-shadow: 0 0 10px rgba(103, 232, 249, 0.1);
+}
+body[data-kind="list"] .list-box li.tier-ice,
+body[data-kind="list"] .list-box li.tier-spark,
+body[data-kind="list"] .list-box li.tier-nova {
+  color: #38bdf8;
+  background: rgba(8, 18, 32, 0.3);
+  border-color: rgba(56, 189, 248, 0.38);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.16);
+}
+body[data-kind="list"] .list-box li.tier-hot,
+body[data-kind="list"] .list-box li.tier-atomic {
+  color: #e879f9;
+  background: rgba(18, 8, 24, 0.3);
+  border-color: rgba(232, 121, 249, 0.38);
+  box-shadow: 0 0 12px rgba(232, 121, 249, 0.16);
+}
 .list-box.style-stack {
   background: var(--widget-bg, #121218ee);
   border: 1px solid #ffffff16;

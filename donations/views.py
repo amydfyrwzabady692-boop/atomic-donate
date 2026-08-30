@@ -16,7 +16,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 
 RECEIPT_EXTS = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
-RECEIPT_MAX_BYTES = 8 * 1024 * 1024
+RECEIPT_MAX_BYTES = 5 * 1024 * 1024
 PANEL_NEXT = {"panel", "panel_alert", "panel_stream", "panel_donations", "panel_goal", "panel_conditions"}
 
 from .engine import ensure_default_alert_tiers
@@ -135,7 +135,7 @@ def _validate_receipt(upload):
     if ext not in RECEIPT_EXTS:
         return "فرمت رسید باید jpg، png، webp یا gif باشد."
     if getattr(upload, "size", 0) > RECEIPT_MAX_BYTES:
-        return "حجم رسید حداکثر ۸ مگابایت باشد."
+        return "حجم رسید حداکثر ۵ مگابایت باشد."
     return ""
 
 
@@ -600,6 +600,7 @@ def panel_widget(request, slug):
             widget_title=title,
             widget_hint=hint,
             widget_url=_overlay_urls()[url_key],
+            widget_size="۲۰۰×۴۰۰" if slug.startswith("list") else "۳۴۰×۲۲۰",
             list_styles=SiteSettings.ListStyle.choices,
             slug=slug,
         ),
