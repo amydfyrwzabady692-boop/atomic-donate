@@ -268,12 +268,12 @@ body[data-kind="list"] .list-box.style-cards,
 body[data-kind="list"] .list-box.style-pills {
   width: 220px;
   margin: 0;
-  padding: 10px 8px 8px;
-  background: linear-gradient(180deg, rgba(8, 12, 20, 0.42), rgba(6, 10, 16, 0.2));
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  backdrop-filter: blur(16px);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  padding: 6px 4px 4px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  backdrop-filter: none;
+  box-shadow: none;
 }
 .list-box.style-cards h2,
 .list-box.style-pills h2 { display: none; }
@@ -358,15 +358,14 @@ body[data-kind="list"] .list-box li {
   height: 34px;
   min-height: 34px;
   max-height: 34px;
-  margin-bottom: 4px;
+  margin-bottom: 5px;
   padding: 0 8px 0 6px;
   gap: 8px;
-  border-radius: 11px;
-  background: rgba(8, 12, 20, 0.32);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  box-shadow: none;
-  backdrop-filter: blur(10px);
-  color: #e2e8f0;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.28);
+  backdrop-filter: none;
+  color: #fff;
   direction: ltr;
   justify-content: flex-start;
 }
@@ -391,8 +390,8 @@ body[data-kind="list"] .list-box .lead .rank {
   opacity: 1;
   text-align: center;
   letter-spacing: 0;
-  color: #e2e8f0;
-  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  background: rgba(0, 0, 0, 0.28);
   border-radius: 7px;
 }
 body[data-kind="list"] .list-box li.rank-2,
@@ -430,63 +429,34 @@ body[data-kind="list"] .list-box .amt {
   font-weight: 800;
   padding: 3px 8px;
   border-radius: 8px;
-  background: rgba(0, 0, 0, 0.42);
-  box-shadow: 0 0 10px rgba(125, 211, 252, 0.18);
+  background: rgba(4, 10, 20, 0.5);
+  box-shadow: none;
   opacity: 1;
   letter-spacing: .02em;
   color: #fff;
-  text-shadow: 0 0 8px rgba(255, 255, 255, 0.35);
-}
-body[data-kind="list"] .list-box li.tier-ash .lead .rank,
-body[data-kind="list"] .list-box li.tier-core .lead .rank {
-  color: #a5f3fc;
-  background: rgba(103, 232, 249, 0.14);
-}
-body[data-kind="list"] .list-box li.tier-ice .lead .rank,
-body[data-kind="list"] .list-box li.tier-spark .lead .rank,
-body[data-kind="list"] .list-box li.tier-nova .lead .rank {
-  color: #bae6fd;
-  background: rgba(56, 189, 248, 0.16);
-}
-body[data-kind="list"] .list-box li.tier-hot .lead .rank,
-body[data-kind="list"] .list-box li.tier-atomic .lead .rank {
-  color: #f5d0fe;
-  background: rgba(232, 121, 249, 0.16);
-}
-body[data-kind="list"] .list-box li.tier-ash .amt,
-body[data-kind="list"] .list-box li.tier-core .amt {
-  color: #ecfeff;
-  box-shadow: 0 0 12px rgba(103, 232, 249, 0.35);
-}
-body[data-kind="list"] .list-box li.tier-ice .amt,
-body[data-kind="list"] .list-box li.tier-spark .amt,
-body[data-kind="list"] .list-box li.tier-nova .amt {
-  color: #e0f2fe;
-  box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
-}
-body[data-kind="list"] .list-box li.tier-hot .amt,
-body[data-kind="list"] .list-box li.tier-atomic .amt {
-  color: #fae8ff;
-  box-shadow: 0 0 12px rgba(232, 121, 249, 0.4);
+  text-shadow: 0 1px 4px #000a;
 }
 body[data-kind="list"] .list-box li.tier-ash,
 body[data-kind="list"] .list-box li.tier-core {
-  color: #a5f3fc;
-  background: rgba(8, 16, 24, 0.28);
-  border-color: rgba(103, 232, 249, 0.2);
+  color: #fff;
+  background: linear-gradient(90deg, #5eead4, #0e7490 58%, #134e4a);
+  border-color: rgba(153, 246, 228, 0.55);
+  box-shadow: 0 0 14px rgba(45, 212, 191, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.28);
 }
 body[data-kind="list"] .list-box li.tier-ice,
 body[data-kind="list"] .list-box li.tier-spark,
 body[data-kind="list"] .list-box li.tier-nova {
-  color: #bae6fd;
-  background: rgba(8, 18, 32, 0.32);
-  border-color: rgba(56, 189, 248, 0.24);
+  color: #fff;
+  background: linear-gradient(90deg, #38bdf8, #2563eb 52%, #1e3a8a);
+  border-color: rgba(125, 211, 252, 0.6);
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.28);
 }
 body[data-kind="list"] .list-box li.tier-hot,
 body[data-kind="list"] .list-box li.tier-atomic {
-  color: #f5d0fe;
-  background: rgba(18, 8, 24, 0.32);
-  border-color: rgba(232, 121, 249, 0.24);
+  color: #fff;
+  background: linear-gradient(90deg, #f0abfc, #c026d3 46%, #6d28d9);
+  border-color: rgba(240, 171, 252, 0.58);
+  box-shadow: 0 0 16px rgba(192, 38, 211, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 .list-box.style-stack {
   background: var(--widget-bg, #121218ee);
