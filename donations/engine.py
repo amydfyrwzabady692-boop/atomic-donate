@@ -28,6 +28,41 @@ def list_tier(amount: int) -> str:
     return "tier-ash"
 
 
+def list_band(amount: int) -> str:
+    n = int(amount or 0)
+    if n >= 1_000_000:
+        return "hot"
+    if n >= 200_000:
+        return "ice"
+    if n >= 10_000:
+        return "ash"
+    return ""
+
+
+def insert_band_slot(slots: list, item: dict) -> list:
+    """Keep two seats. A new donor takes #1 if they beat the leader, otherwise #2."""
+    if not slots:
+        return [item]
+    first = slots[0]
+    if int(item.get("amount") or 0) > int(first.get("amount") or 0):
+        return [item, first]
+    return [first, item]
+
+
+def ranked_board(site: SiteSettings | None = None) -> list:
+    bands = {"hot": [], "ice": [], "ash": []}
+    rows = paid_qs().order_by("paid_at", "created_at", "id")
+    for donation in rows.iterator():
+        band = list_band(donation.amount_toman)
+        if not band:
+            continue
+        bands[band] = insert_band_slot(bands[band], serialize_donation(donation, site))
+    board = []
+    for key in ("hot", "ice", "ash"):
+        board.extend(bands[key])
+    return board
+
+
 def paid_qs():
     return Donation.objects.filter(status=Donation.Status.PAID, is_test=False, show_in_list=True)
 

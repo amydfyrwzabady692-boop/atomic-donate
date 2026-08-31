@@ -174,7 +174,10 @@ function onPayload(data) {
     lastId = data.id;
     if (data.skip_stream) return;
     if (kind === "alert" || kind === "gif") enqueue(data);
-    if (kind === "list" && data.show_in_list !== false) prependDonor(data);
+    if (kind === "list") {
+      if (mode === "last" && Array.isArray(data.ranked)) renderList(data.ranked, data.id);
+      else if (data.show_in_list !== false) prependDonor(data);
+    }
     if (kind === "goal") renderGoal(data.goal);
     if (kind === "top" || kind === "label") renderLabel(data);
     if (kind === "total") renderTotal(data);
@@ -218,7 +221,7 @@ function listItems(data) {
       .map(([name, amount]) => ({ name, amount, emoji: "👑" }))
       .sort((a, b) => b.amount - a.amount);
   }
-  return data.donors || [];
+  return Array.isArray(data.ranked) ? data.ranked : (data.donors || []);
 }
 
 function renderLabel(data) {
@@ -263,13 +266,17 @@ function showQueueItem(item) {
   }
 }
 
-function renderList(donors) {
+function renderList(donors, freshId) {
   const root = document.getElementById("donors");
   if (!root) return;
   const titles = { last: "آخرین حمایت‌ها", biggest: "بزرگ‌ترین حمایت‌ها", donors: "بزرگ‌ترین حمایت‌کننده‌ها" };
   const heading = document.querySelector("#list h2");
   if (heading) heading.textContent = titles[mode] || titles.last;
-  root.innerHTML = donors.map(itemHtml).join("");
+  root.innerHTML = (donors || []).map((d, i) => itemHtml(d, i)).join("");
+  if (freshId) {
+    const el = root.querySelector(`[data-id="${freshId}"]`);
+    if (el) el.classList.add("fresh");
+  }
 }
 
 function prependDonor(data) {
@@ -287,12 +294,15 @@ function amountTier(amount) {
   return "tier-ash";
 }
 
-function itemHtml(d) {
+function itemHtml(d, index = 0) {
   const name = String(d.name || "").trim();
   const msg = String(d.message || "").trim();
-  const label = msg ? (name ? `${name} · ${msg}` : msg) : name;
-  const clip = label.length > 16 ? " has-clip" : "";
-  return `<li class="${amountTier(d.amount)}${clip}"><span class="who">${escapeHtml(label)}</span><span class="amt">${formatToman(d.amount)}</span></li>`;
+  const label = mode === "last" ? name : (msg ? (name ? `${name} · ${msg}` : msg) : name);
+  const clip = label.length > 14 ? " has-clip" : "";
+  const ranks = ["۱", "۲", "۳", "۴", "۵", "۶"];
+  const rank = ranks[index] || "";
+  const id = d.id != null ? String(d.id) : "";
+  return `<li class="${amountTier(d.amount)} rank-${index + 1}${clip}" data-id="${escapeHtml(id)}"><span class="rank">${rank}</span><span class="who">${escapeHtml(label)}</span><span class="amt">${formatToman(d.amount)}</span></li>`;
 }
 
 function renderGoal(goal) {

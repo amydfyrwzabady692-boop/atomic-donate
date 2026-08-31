@@ -1,7 +1,7 @@
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 
-from .engine import biggest_donor, match_condition, paid_qs, serialize_donation, totals
+from .engine import biggest_donor, match_condition, paid_qs, ranked_board, serialize_donation, totals
 from .models import AlertCondition, Donation, SiteSettings
 
 
@@ -92,6 +92,7 @@ def donation_payload(donation: Donation, site: SiteSettings) -> dict:
     payload = overlay_config(site)
     payload.update(serialize_donation(donation, site))
     attach_alert_media(payload, donation, site)
+    payload["ranked"] = ranked_board(site)
     payload["type"] = "donation"
     return payload
 
@@ -113,6 +114,7 @@ def snapshot_payload(site: SiteSettings) -> dict:
         {
             "type": "snapshot",
             "donors": donors,
+            "ranked": ranked_board(site),
             "biggest": serialize_donation(biggest, site) if biggest else None,
             "latest": latest,
             "top": serialize_donation(biggest, site) if biggest else None,

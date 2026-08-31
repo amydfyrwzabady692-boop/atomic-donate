@@ -1,7 +1,10 @@
 from unittest import IsolatedAsyncioTestCase
-from django.test import Client, TestCase
+from uuid import uuid4
 
-from donations.engine import list_tier, match_condition
+from django.test import Client, TestCase
+from django.utils import timezone
+
+from donations.engine import insert_band_slot, list_tier, match_condition, ranked_board
 from donations.models import AlertCondition, Donation, SiteSettings
 
 
@@ -39,6 +42,49 @@ class MatchConditionTests(TestCase):
         self.assertEqual(list_tier(10_000), "tier-ash")
         self.assertEqual(list_tier(200_000), "tier-ice")
         self.assertEqual(list_tier(1_000_000), "tier-hot")
+
+
+class RankedBoardTests(TestCase):
+    def test_insert_beats_leader(self):
+        slots = insert_band_slot([], {"name": "A", "amount": 1_200_000})
+        slots = insert_band_slot(slots, {"name": "B", "amount": 1_100_000})
+        slots = insert_band_slot(slots, {"name": "C", "amount": 2_000_000})
+        self.assertEqual([s["name"] for s in slots], ["C", "A"])
+
+    def test_insert_smaller_takes_second(self):
+        slots = insert_band_slot([], {"name": "A", "amount": 3_000_000})
+        slots = insert_band_slot(slots, {"name": "B", "amount": 1_500_000})
+        slots = insert_band_slot(slots, {"name": "C", "amount": 1_200_000})
+        self.assertEqual([s["name"] for s in slots], ["A", "C"])
+
+    def test_six_seats_by_band(self):
+        from datetime import timedelta
+
+        base = timezone.now()
+        rows = [
+            ("HotA", 1_200_000, 0),
+            ("HotB", 1_100_000, 1),
+            ("HotC", 2_000_000, 2),
+            ("IceA", 300_000, 3),
+            ("IceB", 250_000, 4),
+            ("IceC", 400_000, 5),
+            ("AshA", 50_000, 6),
+            ("AshB", 20_000, 7),
+            ("AshC", 80_000, 8),
+        ]
+        for name, amount, sec in rows:
+            Donation.objects.create(
+                name=name,
+                amount_toman=amount,
+                status=Donation.Status.PAID,
+                is_test=False,
+                show_in_list=True,
+                paid_at=base + timedelta(seconds=sec),
+                authority=uuid4().hex,
+            )
+        board = ranked_board(SiteSettings.load())
+        self.assertEqual([d["name"] for d in board], ["HotC", "HotA", "IceC", "IceA", "AshC", "AshA"])
+        self.assertEqual(len(board), 6)
 
 
 class DonatePageTests(TestCase):
@@ -157,6 +203,8 @@ class OverlayTests(TestCase):
             self.assertEqual(snap.status_code, 200)
             body = snap.json()
             self.assertEqual(body.get("type"), "snapshot")
+            self.assertIn("ranked", body)
+            self.assertIsInstance(body["ranked"], list)
             self.assertIn("gifs", body)
             self.assertIsInstance(body["gifs"], list)
             self.assertIn("overlay.js?v=queue2", client.get("/overlay/alert/?key=obs-secret").content.decode())

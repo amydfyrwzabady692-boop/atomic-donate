@@ -600,7 +600,7 @@ def panel_widget(request, slug):
             widget_title=title,
             widget_hint=hint,
             widget_url=_overlay_urls()[url_key],
-            widget_size="۲۰۰×۴۰۰" if slug.startswith("list") else "۳۴۰×۲۲۰",
+            widget_size="۲۲۰×۲۸۰" if slug.startswith("list") else "۳۴۰×۲۲۰",
             list_styles=SiteSettings.ListStyle.choices,
             slug=slug,
         ),

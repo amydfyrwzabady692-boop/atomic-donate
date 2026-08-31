@@ -263,8 +263,12 @@ body[data-kind="alert"] {
 }
 body[data-kind="list"] .list-box.style-cards,
 body[data-kind="list"] .list-box.style-pills {
-  width: 200px;
-  padding: 2px;
+  width: 220px;
+  padding: 8px 6px 6px;
+  background: rgba(6, 10, 16, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 18px;
+  backdrop-filter: blur(12px);
 }
 .list-box.style-cards h2,
 .list-box.style-pills h2 { display: none; }
@@ -346,16 +350,37 @@ body[data-kind="list"] .list-box.style-pills {
 .list-box li.tier-nova { background: linear-gradient(90deg, #22d3ee, #1d4ed8); box-shadow: 0 0 18px #22d3ee88; }
 .list-box li.tier-atomic { background: linear-gradient(90deg, #e879f9, #6d28d9); box-shadow: 0 0 18px #c026d366; }
 body[data-kind="list"] .list-box li {
-  height: 28px;
-  min-height: 28px;
-  max-height: 28px;
+  height: 32px;
+  min-height: 32px;
+  max-height: 32px;
   margin-bottom: 5px;
-  padding: 0 2px 0 7px;
+  padding: 0 3px 0 6px;
+  gap: 2px;
+  border-radius: 12px;
   background: rgba(8, 12, 20, 0.28);
   border: 1px solid rgba(125, 211, 252, 0.22);
   box-shadow: 0 0 10px rgba(34, 211, 238, 0.1);
   backdrop-filter: blur(10px);
   color: #7dd3fc;
+}
+body[data-kind="list"] .list-box .rank {
+  flex: 0 0 16px;
+  font-size: 10px;
+  font-weight: 800;
+  opacity: .72;
+  text-align: center;
+  letter-spacing: 0;
+}
+body[data-kind="list"] .list-box li.rank-2,
+body[data-kind="list"] .list-box li.rank-4 {
+  margin-bottom: 11px;
+}
+body[data-kind="list"] .list-box li.fresh {
+  animation: list-in .45s ease;
+}
+@keyframes list-in {
+  from { opacity: .2; transform: translateX(10px); }
+  to { opacity: 1; transform: none; }
 }
 body[data-kind="list"] .list-box .who,
 body[data-kind="list"] .list-box .amt {
