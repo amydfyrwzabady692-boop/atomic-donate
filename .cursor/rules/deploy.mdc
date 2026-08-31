@@ -1,0 +1,23 @@
+---
+description: After product changes, commit, push, and give VPS deploy commands without being asked.
+alwaysApply: true
+---
+
+# Deploy without asking
+
+The operator deploys with `git pull` on the VPS. Do not wait for «پوش کن» or «دستور وی پی اس».
+
+When overlay, donate page, panel, or backend changes are done:
+
+1. Commit the work (never `.env` or secrets).
+2. `git push origin HEAD` to `main`.
+3. Print VPS commands. Skip `migrate` unless a new migration exists:
+
+```bash
+cd /opt/atomic-donate
+git pull
+./venv/bin/python manage.py collectstatic --noinput
+sudo systemctl restart atomic-donate
+```
+
+If overlays changed, remind: OBS Browser Source **Refresh**. If list size changed, resize the source (default ۲۲۰×۲۸۰).
