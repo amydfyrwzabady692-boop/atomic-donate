@@ -299,7 +299,7 @@ function itemHtml(d, index = 0) {
   const msg = String(d.message || "").trim();
   const label = mode === "last" ? name : (msg ? (name ? `${name} · ${msg}` : msg) : name);
   const clip = label.length > 14 ? " has-clip" : "";
-  const rank = index < 6 ? `${index + 1}.` : "";
+  const rank = index < 6 ? String(index + 1) : "";
   const id = d.id != null ? String(d.id) : "";
   return `<li class="${amountTier(d.amount)} rank-${index + 1}${clip}" data-id="${escapeHtml(id)}"><span class="lead"><span class="rank">${rank}</span><span class="who">${escapeHtml(label)}</span></span><span class="amt">${formatToman(d.amount)}</span></li>`;
 }

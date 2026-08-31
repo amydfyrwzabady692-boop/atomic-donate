@@ -425,14 +425,17 @@ body[data-kind="list"] .list-box .lead .who {
 body[data-kind="list"] .list-box .amt {
   flex: 0 0 auto;
   margin-left: auto;
-  font-size: 10px;
-  font-weight: 700;
-  padding: 0;
   margin-right: 0;
-  background: none;
-  box-shadow: none;
-  opacity: .65;
-  letter-spacing: .01em;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.42);
+  box-shadow: 0 0 10px rgba(125, 211, 252, 0.18);
+  opacity: 1;
+  letter-spacing: .02em;
+  color: #fff;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.35);
 }
 body[data-kind="list"] .list-box li.tier-ash .lead .rank,
 body[data-kind="list"] .list-box li.tier-core .lead .rank {
@@ -449,6 +452,22 @@ body[data-kind="list"] .list-box li.tier-hot .lead .rank,
 body[data-kind="list"] .list-box li.tier-atomic .lead .rank {
   color: #f5d0fe;
   background: rgba(232, 121, 249, 0.16);
+}
+body[data-kind="list"] .list-box li.tier-ash .amt,
+body[data-kind="list"] .list-box li.tier-core .amt {
+  color: #ecfeff;
+  box-shadow: 0 0 12px rgba(103, 232, 249, 0.35);
+}
+body[data-kind="list"] .list-box li.tier-ice .amt,
+body[data-kind="list"] .list-box li.tier-spark .amt,
+body[data-kind="list"] .list-box li.tier-nova .amt {
+  color: #e0f2fe;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+}
+body[data-kind="list"] .list-box li.tier-hot .amt,
+body[data-kind="list"] .list-box li.tier-atomic .amt {
+  color: #fae8ff;
+  box-shadow: 0 0 12px rgba(232, 121, 249, 0.4);
 }
 body[data-kind="list"] .list-box li.tier-ash,
 body[data-kind="list"] .list-box li.tier-core {
